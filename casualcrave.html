@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CasualCrave — Find Your Vibe, Right Now</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cabinet+Grotesk:wght@400;500;700;800;900&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --black:#05060A;
+  --dark:#0A0C12;
+  --card:#0F1118;
+  --border:#1A1D28;
+  --orange:#FF5C00;
+  --orange-dim:#FF5C0022;
+  --yellow:#FFD600;
+  --pink:#FF2D78;
+  --cyan:#00F0FF;
+  --white:#F0F2FF;
+  --muted:#5A5F78;
+  --dim:#2A2D3E;
+  --font-display:'Bebas Neue',sans-serif;
+  --font-body:'Cabinet Grotesk',sans-serif;
+  --font-mono:'DM Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{background:var(--black);color:var(--white);font-family:var(--font-body);overflow-x:hidden;cursor:none}
+
+/* ── CUSTOM CURSOR ── */
+.cursor{position:fixed;width:12px;height:12px;background:var(--orange);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:transform .1s,width .2s,height .2s,background .2s;mix-blend-mode:difference}
+.cursor-ring{position:fixed;width:36px;height:36px;border:1.5px solid var(--orange);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:transform .15s ease-out,width .3s,height .3s,opacity .3s;opacity:.5}
+body:has(a:hover) .cursor{width:20px;height:20px;background:var(--yellow)}
+body:has(button:hover) .cursor{width:20px;height:20px;background:var(--pink)}
+
+/* ── NOISE TEXTURE OVERLAY ── */
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:100;opacity:.4}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:20px 48px;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(12px);background:rgba(5,6,10,.7);border-bottom:1px solid var(--border)}
+.logo{font-family:var(--font-display);font-size:28px;letter-spacing:.04em;color:var(--white);text-decoration:none;display:flex;align-items:center;gap:2px}
+.logo span{color:var(--orange)}
+.nav-links{display:flex;align-items:center;gap:32px}
+.nav-links a{font-size:13px;font-weight:500;color:var(--muted);text-decoration:none;letter-spacing:.06em;text-transform:uppercase;transition:color .2s}
+.nav-links a:hover{color:var(--white)}
+.nav-cta{background:var(--orange);color:#000;font-family:var(--font-body);font-size:13px;font-weight:800;padding:10px 22px;border-radius:6px;text-decoration:none;letter-spacing:.04em;text-transform:uppercase;transition:background .2s,transform .15s;border:none;cursor:none}
+.nav-cta:hover{background:var(--yellow);transform:translateY(-1px)}
+
+/* ── HERO ── */
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:140px 48px 80px;position:relative;overflow:hidden}
+
+/* Grid lines background */
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:80px 80px;opacity:.35}
+.hero-grid::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 60% 50%,rgba(255,92,0,.12) 0%,transparent 70%)}
+
+/* Floating orbs */
+.orb{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none}
+.orb1{width:500px;height:500px;background:rgba(255,92,0,.18);top:-100px;right:-100px;animation:drift1 8s ease-in-out infinite}
+.orb2{width:300px;height:300px;background:rgba(255,45,120,.12);bottom:100px;left:-80px;animation:drift2 10s ease-in-out infinite}
+.orb3{width:200px;height:200px;background:rgba(0,240,255,.08);top:40%;left:40%;animation:drift3 12s ease-in-out infinite}
+@keyframes drift1{0%,100%{transform:translate(0,0)}50%{transform:translate(-40px,30px)}}
+@keyframes drift2{0%,100%{transform:translate(0,0)}50%{transform:translate(30px,-40px)}}
+@keyframes drift3{0%,100%{transform:translate(0,0)}50%{transform:translate(-20px,20px)}}
+
+.hero-content{position:relative;z-index:2;max-width:900px}
+
+.hero-eyebrow{display:inline-flex;align-items:center;gap:10px;background:var(--orange-dim);border:1px solid rgba(255,92,0,.3);border-radius:4px;padding:6px 14px;font-family:var(--font-mono);font-size:11px;color:var(--orange);letter-spacing:.14em;text-transform:uppercase;margin-bottom:32px;animation:fadeUp .6s ease both}
+.hero-eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--orange);animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+h1{font-family:var(--font-display);font-size:clamp(72px,11vw,148px);line-height:.92;letter-spacing:.01em;animation:fadeUp .7s .1s ease both}
+h1 .line2{display:block;color:var(--orange);-webkit-text-stroke:0px;text-shadow:0 0 60px rgba(255,92,0,.5)}
+h1 .line3{display:block;color:transparent;-webkit-text-stroke:1.5px var(--dim)}
+
+.hero-sub{font-size:17px;line-height:1.65;color:var(--muted);max-width:520px;margin-top:28px;font-weight:400;animation:fadeUp .7s .2s ease both}
+.hero-sub strong{color:var(--white);font-weight:700}
+
+.hero-actions{display:flex;align-items:center;gap:16px;margin-top:44px;animation:fadeUp .7s .3s ease both}
+.btn-primary{display:inline-flex;align-items:center;gap:10px;background:var(--orange);color:#000;font-family:var(--font-body);font-size:15px;font-weight:800;padding:16px 32px;border-radius:8px;text-decoration:none;letter-spacing:.02em;position:relative;overflow:hidden;transition:transform .2s;cursor:none}
+.btn-primary::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);transform:translateX(-100%);transition:transform .5s}
+.btn-primary:hover{transform:translateY(-2px)}
+.btn-primary:hover::before{transform:translateX(100%)}
+.btn-secondary{display:inline-flex;align-items:center;gap:8px;color:var(--white);font-size:15px;font-weight:600;text-decoration:none;padding:16px 28px;border:1px solid var(--border);border-radius:8px;transition:border-color .2s,color .2s;cursor:none}
+.btn-secondary:hover{border-color:var(--muted);color:var(--white)}
+
+/* Mood widget preview */
+.hero-widget{position:absolute;right:48px;top:50%;transform:translateY(-50%);width:320px;animation:fadeUp .8s .4s ease both;display:none}
+@media(min-width:1100px){.hero-widget{display:block}}
+
+.widget-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,.6),0 0 0 1px rgba(255,92,0,.08)}
+.widget-top{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.widget-title{font-family:var(--font-mono);font-size:10px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
+.widget-dot{width:8px;height:8px;border-radius:50%;background:var(--orange);box-shadow:0 0 10px var(--orange);animation:pulse 1.8s ease-in-out infinite}
+.widget-body{padding:18px}
+.mood-q{font-size:13px;color:var(--muted);margin-bottom:14px;font-weight:500}
+.mood-input{background:var(--dark);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-family:var(--font-body);font-size:14px;color:var(--white);width:100%;outline:none;margin-bottom:16px}
+.mood-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px}
+.chip{padding:6px 12px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid;cursor:none;transition:all .2s;letter-spacing:.02em}
+.chip.orange{color:var(--orange);border-color:rgba(255,92,0,.4);background:rgba(255,92,0,.08)}
+.chip.pink{color:var(--pink);border-color:rgba(255,45,120,.4);background:rgba(255,45,120,.08)}
+.chip.cyan{color:var(--cyan);border-color:rgba(0,240,255,.4);background:rgba(0,240,255,.08)}
+.chip.yellow{color:var(--yellow);border-color:rgba(255,214,0,.4);background:rgba(255,214,0,.08)}
+.chip:hover{transform:scale(1.05)}
+.discover-btn{width:100%;background:var(--orange);color:#000;font-family:var(--font-body);font-size:13px;font-weight:800;padding:12px;border:none;border-radius:8px;cursor:none;letter-spacing:.04em;text-transform:uppercase;transition:background .2s}
+.discover-btn:hover{background:var(--yellow)}
+.widget-results{padding:0 18px 18px;display:flex;flex-direction:column;gap:8px}
+.result-item{display:flex;align-items:center;gap:12px;background:var(--dark);border:1px solid var(--border);border-radius:10px;padding:10px 12px;transition:border-color .2s}
+.result-item:hover{border-color:rgba(255,92,0,.3)}
+.result-emoji{font-size:22px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:var(--border);border-radius:8px}
+.result-info{flex:1}
+.result-name{font-size:12px;font-weight:700;color:var(--white)}
+.result-meta{font-size:10px;color:var(--muted);margin-top:2px;font-family:var(--font-mono)}
+.result-dist{font-family:var(--font-mono);font-size:10px;color:var(--orange);background:var(--orange-dim);padding:3px 7px;border-radius:4px}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── TICKER ── */
+.ticker{background:var(--orange);overflow:hidden;padding:10px 0;border-top:1px solid rgba(255,92,0,.3);border-bottom:1px solid rgba(255,92,0,.3)}
+.ticker-inner{display:flex;gap:0;animation:ticker 22s linear infinite;white-space:nowrap}
+.ticker-item{font-family:var(--font-display);font-size:15px;letter-spacing:.08em;color:#000;padding:0 32px;display:flex;align-items:center;gap:12px}
+.ticker-sep{color:rgba(0,0,0,.3)}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ── SECTION BASE ── */
+section{padding:100px 48px}
+.section-tag{font-family:var(--font-mono);font-size:10px;color:var(--orange);letter-spacing:.18em;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.section-tag::before{content:'';display:block;width:24px;height:1px;background:var(--orange)}
+h2{font-family:var(--font-display);font-size:clamp(48px,6vw,88px);line-height:.95;letter-spacing:.02em;margin-bottom:20px}
+.section-sub{font-size:17px;color:var(--muted);max-width:540px;line-height:1.65}
+
+/* ── HOW IT WORKS ── */
+.how{background:var(--dark);position:relative;overflow:hidden}
+.how::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--orange),transparent)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:2px;margin-top:64px}
+.step{background:var(--card);padding:40px 32px;position:relative;overflow:hidden;transition:background .3s}
+.step:hover{background:#141720}
+.step:hover .step-num{color:var(--orange)}
+.step-num{font-family:var(--font-display);font-size:80px;color:var(--dim);line-height:1;margin-bottom:16px;transition:color .3s}
+.step-icon{font-size:32px;margin-bottom:16px}
+.step-title{font-size:20px;font-weight:800;color:var(--white);margin-bottom:10px;letter-spacing:-.01em}
+.step-desc{font-size:14px;color:var(--muted);line-height:1.6}
+.step-bar{position:absolute;bottom:0;left:0;height:3px;width:0;background:var(--orange);transition:width .4s}
+.step:hover .step-bar{width:100%}
+
+/* ── MOOD SHOWCASE ── */
+.moods{position:relative;overflow:hidden}
+.moods-bg{position:absolute;inset:0;background:radial-gradient(ellipse 50% 70% at 80% 50%,rgba(255,45,120,.06) 0%,transparent 60%)}
+.mood-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:64px;max-width:480px}
+@media(min-width:900px){.moods-layout{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}.mood-grid{margin-top:0}}
+.mood-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;cursor:none;transition:all .3s;position:relative;overflow:hidden}
+.mood-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .3s}
+.mood-card:hover{transform:translateY(-4px);border-color:transparent}
+.mood-card.m1::before{background:linear-gradient(135deg,rgba(255,92,0,.15),transparent)}
+.mood-card.m1:hover{box-shadow:0 20px 60px rgba(255,92,0,.2)}
+.mood-card.m2::before{background:linear-gradient(135deg,rgba(255,45,120,.15),transparent)}
+.mood-card.m2:hover{box-shadow:0 20px 60px rgba(255,45,120,.2)}
+.mood-card.m3::before{background:linear-gradient(135deg,rgba(0,240,255,.1),transparent)}
+.mood-card.m3:hover{box-shadow:0 20px 60px rgba(0,240,255,.15)}
+.mood-card.m4::before{background:linear-gradient(135deg,rgba(255,214,0,.12),transparent)}
+.mood-card.m4:hover{box-shadow:0 20px 60px rgba(255,214,0,.2)}
+.mood-card:hover::before{opacity:1}
+.mood-emoji{font-size:36px;margin-bottom:12px}
+.mood-label{font-size:18px;font-weight:800;color:var(--white);margin-bottom:6px;letter-spacing:-.01em}
+.mood-desc{font-size:12px;color:var(--muted);line-height:1.5}
+.mood-count{font-family:var(--font-mono);font-size:10px;color:var(--orange);margin-top:12px}
+
+/* Right side showcase */
+.moods-right{position:relative}
+.phone-mockup{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:24px;max-width:320px;margin:0 auto;box-shadow:0 60px 120px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.05)}
+.phone-notch{width:80px;height:6px;background:var(--border);border-radius:3px;margin:0 auto 24px}
+.phone-header{text-align:center;margin-bottom:20px}
+.phone-header-title{font-size:11px;font-family:var(--font-mono);color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+.phone-loc{font-size:18px;font-weight:800;color:var(--white);margin-top:4px}
+.phone-loc span{color:var(--orange)}
+.phone-results{display:flex;flex-direction:column;gap:10px}
+.phone-item{display:flex;align-items:center;gap:12px;background:var(--dark);border-radius:12px;padding:12px 14px;border:1px solid var(--border);animation:slideIn 1s ease both}
+.phone-item:nth-child(1){animation-delay:.2s}
+.phone-item:nth-child(2){animation-delay:.4s}
+.phone-item:nth-child(3){animation-delay:.6s}
+.phone-item:nth-child(4){animation-delay:.8s}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+.pi-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.pi-body{flex:1}
+.pi-name{font-size:13px;font-weight:700;color:var(--white)}
+.pi-sub{font-size:11px;color:var(--muted);margin-top:2px;font-family:var(--font-mono)}
+.pi-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;white-space:nowrap}
+.badge-hot{background:rgba(255,92,0,.2);color:var(--orange)}
+.badge-live{background:rgba(255,45,120,.2);color:var(--pink)}
+.badge-new{background:rgba(0,240,255,.15);color:var(--cyan)}
+.badge-deal{background:rgba(255,214,0,.15);color:var(--yellow)}
+
+/* ── SERVICES ── */
+.services{background:var(--dark)}
+.services-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1px;margin-top:64px;background:var(--border);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.service-card{background:var(--card);padding:40px 36px;transition:background .3s;position:relative;overflow:hidden}
+.service-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;transform:scaleX(0);transform-origin:left;transition:transform .4s}
+.service-card.s1::after{background:var(--orange)}
+.service-card.s2::after{background:var(--pink)}
+.service-card.s3::after{background:var(--cyan)}
+.service-card.s4::after{background:var(--yellow)}
+.service-card.s5::after{background:linear-gradient(90deg,var(--orange),var(--pink))}
+.service-card.s6::after{background:linear-gradient(90deg,var(--cyan),var(--yellow))}
+.service-card:hover{background:#141720}
+.service-card:hover::after{transform:scaleX(1)}
+.service-icon{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:24px;border:1px solid var(--border)}
+.service-title{font-size:22px;font-weight:800;color:var(--white);margin-bottom:10px;letter-spacing:-.01em}
+.service-desc{font-size:14px;color:var(--muted);line-height:1.65}
+.service-tag{display:inline-block;font-family:var(--font-mono);font-size:10px;color:var(--muted);background:var(--dark);border:1px solid var(--border);padding:4px 10px;border-radius:4px;margin-top:16px;letter-spacing:.06em}
+
+/* ── SOCIAL PROOF ── */
+.proof{position:relative;overflow:hidden;text-align:center}
+.proof-bg{position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 50%,rgba(255,92,0,.07) 0%,transparent 70%)}
+.stats-row{display:flex;justify-content:center;flex-wrap:wrap;gap:64px;margin-top:64px;position:relative;z-index:2}
+.stat-item{text-align:center}
+.stat-num{font-family:var(--font-display);font-size:72px;line-height:1;letter-spacing:-.01em;background:linear-gradient(135deg,var(--orange),var(--yellow));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-label{font-size:13px;color:var(--muted);font-family:var(--font-mono);letter-spacing:.1em;text-transform:uppercase;margin-top:6px}
+
+/* ── TESTIMONIALS ── */
+.testi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:64px}
+.testi-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;position:relative;overflow:hidden;transition:border-color .3s}
+.testi-card:hover{border-color:rgba(255,92,0,.3)}
+.testi-quote{font-size:32px;line-height:1;color:var(--orange);font-family:Georgia,serif;margin-bottom:12px;opacity:.6}
+.testi-text{font-size:14px;color:var(--white);line-height:1.7;font-weight:500}
+.testi-author{display:flex;align-items:center;gap:12px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+.testi-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#000;flex-shrink:0}
+.testi-name{font-size:13px;font-weight:700;color:var(--white)}
+.testi-loc{font-size:11px;color:var(--muted);font-family:var(--font-mono)}
+
+/* ── CTA SECTION ── */
+.cta-section{background:var(--orange);position:relative;overflow:hidden;padding:100px 48px;text-align:center}
+.cta-section::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,0,0,.2) 0%,transparent 50%,rgba(0,0,0,.1) 100%)}
+.cta-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,0,0,.1) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.1) 1px,transparent 1px);background-size:60px 60px}
+.cta-section h2{color:#000;font-size:clamp(52px,8vw,110px);line-height:.9;position:relative;z-index:2}
+.cta-section .section-sub{color:rgba(0,0,0,.6);position:relative;z-index:2;margin:24px auto;max-width:480px}
+.cta-section .hero-actions{justify-content:center;position:relative;z-index:2}
+.btn-dark{display:inline-flex;align-items:center;gap:10px;background:#000;color:var(--orange);font-family:var(--font-body);font-size:15px;font-weight:800;padding:16px 36px;border-radius:8px;text-decoration:none;letter-spacing:.02em;transition:background .2s,transform .2s;cursor:none}
+.btn-dark:hover{background:#111;transform:translateY(-2px)}
+.btn-outline-dark{display:inline-flex;align-items:center;gap:8px;color:#000;font-size:15px;font-weight:700;text-decoration:none;padding:16px 28px;border:2px solid rgba(0,0,0,.3);border-radius:8px;transition:border-color .2s;cursor:none}
+.btn-outline-dark:hover{border-color:rgba(0,0,0,.7)}
+
+/* ── FOOTER ── */
+footer{background:var(--black);border-top:1px solid var(--border);padding:64px 48px 40px}
+.footer-top{display:grid;grid-template-columns:1.5fr repeat(3,1fr);gap:48px;margin-bottom:48px}
+.footer-brand .logo{font-size:32px;margin-bottom:16px;display:inline-block}
+.footer-brand p{font-size:13px;color:var(--muted);line-height:1.7;max-width:260px}
+.footer-col h4{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;font-family:var(--font-mono)}
+.footer-col a{display:block;font-size:14px;color:var(--dim);text-decoration:none;margin-bottom:10px;transition:color .2s}
+.footer-col a:hover{color:var(--white)}
+.footer-bottom{display:flex;align-items:center;justify-content:space-between;padding-top:24px;border-top:1px solid var(--border)}
+.footer-copy{font-size:12px;color:var(--dim);font-family:var(--font-mono)}
+.footer-socials{display:flex;gap:16px}
+.social-link{width:34px;height:34px;border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--muted);text-decoration:none;font-size:14px;transition:border-color .2s,color .2s}
+.social-link:hover{border-color:var(--orange);color:var(--orange)}
+
+/* ── MOBILE ── */
+@media(max-width:768px){
+  nav{padding:16px 20px}
+  .nav-links{display:none}
+  .hero{padding:120px 20px 60px}
+  section{padding:70px 20px}
+  .steps{grid-template-columns:1fr}
+  .footer-top{grid-template-columns:1fr 1fr}
+  .cta-section{padding:70px 20px}
+  .stats-row{gap:36px}
+  .stat-num{font-size:52px}
+}
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo">Casual<span>Crave</span></a>
+  <div class="nav-links">
+    <a href="#how">How It Works</a>
+    <a href="#services">Services</a>
+    <a href="#moods">Moods</a>
+    <a href="#about">About</a>
+  </div>
+  <a href="#" class="nav-cta">Get Early Access</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+
+  <div class="hero-content">
+    <div class="hero-eyebrow">
+      <div></div>
+      Now Live Worldwide · Mood-Powered Discovery
+    </div>
+    <h1>
+      FIND YOUR<br>
+      <span class="line2">VIBE</span>
+      <span class="line3">RIGHT NOW</span>
+    </h1>
+    <p class="hero-sub">
+      Tell us how you feel. We'll find exactly what to <strong>do, eat, experience or explore</strong> — near you, right now. No scroll fatigue. No decision paralysis. Just your perfect next move.
+    </p>
+    <div class="hero-actions">
+      <a href="#" class="btn-primary">
+        Start Craving
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+      <a href="#how" class="btn-secondary">
+        See How It Works
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <!-- Floating widget -->
+  <div class="hero-widget">
+    <div class="widget-card">
+      <div class="widget-top">
+        <span class="widget-title">// mood scanner active</span>
+        <div class="widget-dot"></div>
+      </div>
+      <div class="widget-body">
+        <p class="mood-q">How are you feeling right now?</p>
+        <input class="mood-input" type="text" placeholder="e.g. bored, hungry, adventurous…" readonly/>
+        <div class="mood-chips">
+          <span class="chip orange">🔥 Bored AF</span>
+          <span class="chip pink">💃 Party Mode</span>
+          <span class="chip cyan">🧘 Chill Vibes</span>
+          <span class="chip yellow">🍔 Starving</span>
+        </div>
+        <button class="discover-btn">Discover My Vibe →</button>
+      </div>
+      <div class="widget-results">
+        <div class="result-item">
+          <div class="result-emoji">🎸</div>
+          <div class="result-info">
+            <div class="result-name">Electric Rooftop Jam</div>
+            <div class="result-meta">Live · Open Now</div>
+          </div>
+          <div class="result-dist">0.4km</div>
+        </div>
+        <div class="result-item">
+          <div class="result-emoji">🍜</div>
+          <div class="result-info">
+            <div class="result-name">Night Market Bites</div>
+            <div class="result-meta">Food · 23 spots</div>
+          </div>
+          <div class="result-dist">1.1km</div>
+        </div>
+        <div class="result-item">
+          <div class="result-emoji">🎯</div>
+          <div class="result-info">
+            <div class="result-name">Arcade Battle Night</div>
+            <div class="result-meta">Games · Until 2AM</div>
+          </div>
+          <div class="result-dist">2.3km</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <span class="ticker-item">MOOD-BASED DISCOVERY <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">GROUP UNLOCK DEALS <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">REAL-TIME EXPERIENCES <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">SOCIAL CHALLENGES <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">LOCAL MICRO-REWARDS <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">IMPULSE WISHLISTS <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">VIBE MATCHMAKING <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">CREATOR COMMISSIONS <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">MOOD-BASED DISCOVERY <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">GROUP UNLOCK DEALS <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">REAL-TIME EXPERIENCES <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">SOCIAL CHALLENGES <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">LOCAL MICRO-REWARDS <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">IMPULSE WISHLISTS <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">VIBE MATCHMAKING <span class="ticker-sep">✦</span></span>
+    <span class="ticker-item">CREATOR COMMISSIONS <span class="ticker-sep">✦</span></span>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="section-tag">How It Works</div>
+  <h2>THREE STEPS<br>TO YOUR VIBE</h2>
+  <p class="section-sub">No algorithms forcing yesterday's content on you. Just raw, real-time vibes matched to your mood, your location, your moment.</p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-icon">🧠</div>
+      <div class="step-title">Drop Your Mood</div>
+      <p class="step-desc">Type it, tap a chip, or let our vibe scanner read between the lines. Bored? Hungry? Feeling reckless? We take it all.</p>
+      <div class="step-bar"></div>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-icon">📍</div>
+      <div class="step-title">We Scan Your World</div>
+      <p class="step-desc">Real-time data across food, events, experiences, people and deals — all within your reach, all matched to your exact energy.</p>
+      <div class="step-bar"></div>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-icon">⚡</div>
+      <div class="step-title">Go. Instantly.</div>
+      <p class="step-desc">Tap once. Get directions, book a table, unlock a group deal or find a companion for the night. Zero friction. Maximum vibe.</p>
+      <div class="step-bar"></div>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <div class="step-icon">🔁</div>
+      <div class="step-title">Share & Repeat</div>
+      <p class="step-desc">Rate your crave. Share with friends. Your experience makes the platform smarter for everyone — including your future self.</p>
+      <div class="step-bar"></div>
+    </div>
+  </div>
+</section>
+
+<!-- MOODS SECTION -->
+<section class="moods" id="moods">
+  <div class="moods-bg"></div>
+  <div class="moods-layout">
+    <div>
+      <div class="section-tag">Mood Engine</div>
+      <h2>EVERY MOOD<br>HAS A<br><span style="color:var(--orange)">MATCH</span></h2>
+      <p class="section-sub">We've mapped 40+ human emotional states to real-world experiences. Whatever you're feeling — there's something out there built exactly for that energy.</p>
+      <div class="mood-grid">
+        <div class="mood-card m1">
+          <div class="mood-emoji">🔥</div>
+          <div class="mood-label">Bored & Restless</div>
+          <div class="mood-desc">Need stimulation fast. Shows you the most electrifying things happening right now.</div>
+          <div class="mood-count">→ 248 live options</div>
+        </div>
+        <div class="mood-card m2">
+          <div class="mood-emoji">💃</div>
+          <div class="mood-label">Party Mode</div>
+          <div class="mood-desc">Full social energy. Events, clubs, group deals, nightlife unlocked in one tap.</div>
+          <div class="mood-count">→ 134 live options</div>
+        </div>
+        <div class="mood-card m3">
+          <div class="mood-emoji">🧘</div>
+          <div class="mood-label">Low-Key Chill</div>
+          <div class="mood-desc">Quiet spots, cozy cafés, ambient playlists, slow food. Calm, curated, close.</div>
+          <div class="mood-count">→ 312 live options</div>
+        </div>
+        <div class="mood-card m4">
+          <div class="mood-emoji">🍔</div>
+          <div class="mood-label">Hungry AF</div>
+          <div class="mood-desc">Craving something specific or just want the best open spot nearest you right now.</div>
+          <div class="mood-count">→ 891 live options</div>
+        </div>
+      </div>
+    </div>
+    <div class="moods-right">
+      <div class="phone-mockup">
+        <div class="phone-notch"></div>
+        <div class="phone-header">
+          <div class="phone-header-title">Vibe Match · Now</div>
+          <div class="phone-loc">Lagos, <span>NG</span> · 9:42 PM</div>
+        </div>
+        <div class="phone-results">
+          <div class="phone-item">
+            <div class="pi-icon" style="background:rgba(255,92,0,.15)">🎵</div>
+            <div class="pi-body">
+              <div class="pi-name">Afrobeats Night</div>
+              <div class="pi-sub">The Underground · 0.8km</div>
+            </div>
+            <div class="pi-badge badge-hot">HOT</div>
+          </div>
+          <div class="phone-item">
+            <div class="pi-icon" style="background:rgba(255,45,120,.1)">🌮</div>
+            <div class="pi-body">
+              <div class="pi-name">Street Taco Pop-Up</div>
+              <div class="pi-sub">Victoria Island · 1.2km</div>
+            </div>
+            <div class="pi-badge badge-live">LIVE</div>
+          </div>
+          <div class="phone-item">
+            <div class="pi-icon" style="background:rgba(0,240,255,.08)">🎮</div>
+            <div class="pi-body">
+              <div class="pi-name">Gaming Lounge</div>
+              <div class="pi-sub">Open All Night · 2.0km</div>
+            </div>
+            <div class="pi-badge badge-new">NEW</div>
+          </div>
+          <div class="phone-item">
+            <div class="pi-icon" style="background:rgba(255,214,0,.1)">☕</div>
+            <div class="pi-body">
+              <div class="pi-name">Late Night Café</div>
+              <div class="pi-sub">Group deal · 5 spots left</div>
+            </div>
+            <div class="pi-badge badge-deal">DEAL</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="services" id="services">
+  <div class="section-tag">Services</div>
+  <h2>THE FULL<br>CRAVE STACK</h2>
+  <p class="section-sub">Six interconnected services, all designed around one mission — getting you out of your head and into the moment.</p>
+  <div class="services-grid">
+    <div class="service-card s1">
+      <div class="service-icon" style="background:rgba(255,92,0,.1);border-color:rgba(255,92,0,.2)">🧠</div>
+      <div class="service-title">Mood Discovery Engine</div>
+      <p class="service-desc">Type your emotional state, tap a vibe, or let us figure it out. Our engine maps your mood to the best real-world options around you in real time.</p>
+      <span class="service-tag">HERO FEATURE</span>
+    </div>
+    <div class="service-card s2">
+      <div class="service-icon" style="background:rgba(255,45,120,.1);border-color:rgba(255,45,120,.2)">👥</div>
+      <div class="service-title">Group Unlock Deals</div>
+      <p class="service-desc">Get 10 people in, unlock 40% off a rooftop dinner. FOMO-driven social deals that reward groups and fill venues. Share the link, watch it fill up.</p>
+      <span class="service-tag">VIRAL LOOP</span>
+    </div>
+    <div class="service-card s3">
+      <div class="service-icon" style="background:rgba(0,240,255,.08);border-color:rgba(0,240,255,.15)">🎯</div>
+      <div class="service-title">Social Bet & Challenge</div>
+      <p class="service-desc">Bet friends on micro-challenges — fitness goals, trivia, predictions. Bragging rights, streaks, and community rewards. Not gambling. Pure fun.</p>
+      <span class="service-tag">ENGAGEMENT</span>
+    </div>
+    <div class="service-card s4">
+      <div class="service-icon" style="background:rgba(255,214,0,.08);border-color:rgba(255,214,0,.15)">🤝</div>
+      <div class="service-title">Vibe Matchmaking</div>
+      <p class="service-desc">Find a concert buddy, a gym partner, a chess opponent. Non-dating social connection for shared activities. The casual connection layer the internet is missing.</p>
+      <span class="service-tag">SOCIAL LAYER</span>
+    </div>
+    <div class="service-card s5">
+      <div class="service-icon" style="background:rgba(255,92,0,.08);border-color:rgba(255,92,0,.15)">⭐</div>
+      <div class="service-title">Creator Micro-Commissions</div>
+      <p class="service-desc">Pay tiny amounts for personalized shoutouts, custom memes, voice notes from local micro-influencers. Faster, cheaper, more personal than anything out there.</p>
+      <span class="service-tag">CREATOR ECONOMY</span>
+    </div>
+    <div class="service-card s6">
+      <div class="service-icon" style="background:rgba(0,240,255,.08);border-color:rgba(0,240,255,.15)">🎁</div>
+      <div class="service-title">Impulse Wishlist & Gifting</div>
+      <p class="service-desc">Drop your cravings publicly. Let friends, followers, or strangers gift them. Anonymous gifting option makes it explosively viral. The internet's most honest wish list.</p>
+      <span class="service-tag">GIFTING</span>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="proof">
+  <div class="proof-bg"></div>
+  <div class="section-tag" style="justify-content:center">By The Numbers</div>
+  <h2 style="text-align:center">CRAVING<br>HARD DATA</h2>
+  <div class="stats-row">
+    <div class="stat-item">
+      <div class="stat-num">40+</div>
+      <div class="stat-label">Mood States Mapped</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">2s</div>
+      <div class="stat-label">Avg Time to Match</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">6</div>
+      <div class="stat-label">Core Services</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">∞</div>
+      <div class="stat-label">Vibes Available</div>
+    </div>
+  </div>
+
+  <!-- Testimonials -->
+  <div class="testi-row" style="max-width:1100px;margin-left:auto;margin-right:auto">
+    <div class="testi-card">
+      <div class="testi-quote">"</div>
+      <p class="testi-text">I opened CasualCrave at 10pm with zero plans. Twenty minutes later I was at a rooftop gig I'd never have found otherwise. That's the magic.</p>
+      <div class="testi-author">
+        <div class="testi-avatar" style="background:var(--orange)">A</div>
+        <div>
+          <div class="testi-name">Amara T.</div>
+          <div class="testi-loc">Lagos, Nigeria</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-quote">"</div>
+      <p class="testi-text">The group deal feature filled my restaurant on a Tuesday. Normally dead. CasualCrave sent 14 people through the door in one shot.</p>
+      <div class="testi-author">
+        <div class="testi-avatar" style="background:var(--pink)">J</div>
+        <div>
+          <div class="testi-name">James K.</div>
+          <div class="testi-loc">London, UK</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-quote">"</div>
+      <p class="testi-text">Finally a platform that gets that I don't always want dating — sometimes I just want someone to go to the arcade with at midnight.</p>
+      <div class="testi-author">
+        <div class="testi-avatar" style="background:var(--cyan);color:#000">S</div>
+        <div>
+          <div class="testi-name">Sofia R.</div>
+          <div class="testi-loc">São Paulo, Brazil</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-grid"></div>
+  <div class="section-tag" style="justify-content:center;color:rgba(0,0,0,.5)">
+    <span style="background:rgba(0,0,0,.15);width:24px;height:1px;display:inline-block"></span>
+    Early Access Open Now
+  </div>
+  <h2>STOP<br>SCROLLING.<br>START<br>CRAVING.</h2>
+  <p class="section-sub">Join thousands of people who've stopped wasting time and started living their best impulse moments. Your vibe is out there. Go find it.</p>
+  <div class="hero-actions">
+    <a href="#" class="btn-dark">
+      Join CasualCrave Free
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </a>
+    <a href="#services" class="btn-outline-dark">Explore Services</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <a href="#" class="logo">Casual<span>Crave</span></a>
+      <p>The world's first mood-powered discovery platform. Find your vibe, right now, wherever you are.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Platform</h4>
+      <a href="#">Mood Discovery</a>
+      <a href="#">Group Deals</a>
+      <a href="#">Social Bets</a>
+      <a href="#">Vibe Match</a>
+      <a href="#">Gifting</a>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <a href="#">About Us</a>
+      <a href="#">Blog</a>
+      <a href="#">Careers</a>
+      <a href="#">Press</a>
+      <a href="#">Partners</a>
+    </div>
+    <div class="footer-col">
+      <h4>Legal</h4>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Use</a>
+      <a href="#">Cookie Policy</a>
+      <a href="#">Contact</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2026 CasualCrave · casual-crave.com · All rights reserved</div>
+    <div class="footer-socials">
+      <a href="#" class="social-link">𝕏</a>
+      <a href="#" class="social-link">in</a>
+      <a href="#" class="social-link">ig</a>
+      <a href="#" class="social-link">tk</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Custom cursor
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX; my=e.clientY;
+  cursor.style.left=mx+'px'; cursor.style.top=my+'px';
+});
+function animRing(){
+  rx+=(mx-rx)*.12; ry+=(my-ry)*.12;
+  ring.style.left=rx+'px'; ring.style.top=ry+'px';
+  requestAnimationFrame(animRing);
+}
+animRing();
+
+// Mood chip interaction
+const chips = document.querySelectorAll('.chip');
+const input = document.querySelector('.mood-input');
+chips.forEach(chip=>{
+  chip.addEventListener('click',()=>{
+    input.value = chip.textContent.trim();
+    chips.forEach(c=>c.style.opacity='0.4');
+    chip.style.opacity='1';
+    chip.style.transform='scale(1.1)';
+  });
+});
+
+// Discover button pulse
+const discBtn = document.querySelector('.discover-btn');
+if(discBtn){
+  discBtn.addEventListener('click',()=>{
+    discBtn.textContent='Finding your vibe…';
+    discBtn.style.background='#222';
+    discBtn.style.color='var(--orange)';
+    setTimeout(()=>{
+      discBtn.textContent='Vibe Found! ✦';
+      discBtn.style.background='#00875A';
+      discBtn.style.color='#fff';
+    },1200);
+  });
+}
+
+// Scroll reveal
+const observer = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){ e.target.style.opacity='1'; e.target.style.transform='translateY(0)'; }
+  });
+},{threshold:.1});
+
+document.querySelectorAll('.step,.service-card,.testi-card,.mood-card').forEach(el=>{
+  el.style.opacity='0'; el.style.transform='translateY(30px)';
+  el.style.transition='opacity .6s ease, transform .6s ease';
+  observer.observe(el);
+});
+</script>
+</body>
+</html>
