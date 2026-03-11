@@ -5,6 +5,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CasualCrave — Find Your Vibe, Right Now</title>
+  <link rel="icon" type="image/png" sizes="32x32"
+    href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABN0lEQVR4nMVXTRqEIAhFv3LhATvMHKkDunAWzYqmSOTH+npbgfdEVAhgxJzy1lv/1hIs8VTGEumIGNGgRV6XwtqnNZtEsIuUuEeqEcMJiU+RUz/uGC+qjoZe4hYwGzQTpww8RX6MRzNxUoOLGnJabBa/YxYmSu4hpmuSkDnlDUUESs45c8R1Kd21XqxvLSFaHKzQCGteQy0w0EjBRunsvbvX+M8pb3sG3Lv4+NyQr3sEo7vXxHHXAM2YN4NDRbin33kM4wJuwOsCgvT+W998i31aM0R8k++qeC3wU5okw9ZbbxEr3Y7XayAC/LsU668moXf2p+8YoWlINOmX/JsNiRYY3NsRUbBN6d09IcB19wCNInzqWrbIAZSDyUg2uHZcFECFeCcj92jWEoHQ3pJbhlNJDIV1PP8B8Va+W9GCh5MAAAAASUVORK5CYII=">
+  <link rel="shortcut icon"
+    href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABN0lEQVR4nMVXTRqEIAhFv3LhATvMHKkDunAWzYqmSOTH+npbgfdEVAhgxJzy1lv/1hIs8VTGEumIGNGgRV6XwtqnNZtEsIuUuEeqEcMJiU+RUz/uGC+qjoZe4hYwGzQTpww8RX6MRzNxUoOLGnJabBa/YxYmSu4hpmuSkDnlDUUESs45c8R1Kd21XqxvLSFaHKzQCGteQy0w0EjBRunsvbvX+M8pb3sG3Lv4+NyQr3sEo7vXxHHXAM2YN4NDRbin33kM4wJuwOsCgvT+W998i31aM0R8k++qeC3wU5okw9ZbbxEr3Y7XayAC/LsU668moXf2p+8YoWlINOmX/JsNiRYY3NsRUbBN6d09IcB19wCNInzqWrbIAZSDyUg2uHZcFECFeCcj92jWEoHQ3pJbhlNJDIV1PP8B8Va+W9GCh5MAAAAASUVORK5CYII=">
   <link
     href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cabinet+Grotesk:wght@400;500;700;800;900&family=DM+Mono:wght@300;400&display=swap"
     rel="stylesheet" />
@@ -15,7 +19,7 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0
-    } 
+    }
 
     :root {
       --black: #05060A;
@@ -1452,6 +1456,200 @@
       color: var(--orange)
     }
 
+    /* ── HAMBURGER ── */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      width: 40px;
+      height: 40px;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: none;
+      padding: 8px;
+      transition: border-color .2s;
+      flex-shrink: 0
+    }
+
+    .hamburger:hover {
+      border-color: var(--orange)
+    }
+
+    .hamburger span {
+      display: block;
+      width: 100%;
+      height: 1.5px;
+      background: var(--white);
+      border-radius: 2px;
+      transition: transform .35s cubic-bezier(.23, 1, .32, 1), opacity .25s, background .2s
+    }
+
+    .hamburger.open span:nth-child(1) {
+      transform: translateY(6.5px) rotate(45deg);
+      background: var(--orange)
+    }
+
+    .hamburger.open span:nth-child(2) {
+      opacity: 0;
+      transform: scaleX(0)
+    }
+
+    .hamburger.open span:nth-child(3) {
+      transform: translateY(-6.5px) rotate(-45deg);
+      background: var(--orange)
+    }
+
+    /* Mobile drawer */
+    .mobile-menu {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 490;
+      background: var(--black);
+      display: flex;
+      flex-direction: column;
+      padding: 100px 32px 48px;
+      transform: translateX(100%);
+      transition: transform .4s cubic-bezier(.23, 1, .32, 1);
+      overflow: hidden
+    }
+
+    .mobile-menu::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 80px 80px;
+      opacity: .25
+    }
+
+    .mobile-menu::after {
+      content: '';
+      position: absolute;
+      top: -200px;
+      right: -100px;
+      width: 400px;
+      height: 400px;
+      background: rgba(255, 92, 0, .1);
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none
+    }
+
+    .mobile-menu.open {
+      transform: translateX(0)
+    }
+
+    .mobile-nav-links {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      position: relative;
+      z-index: 2;
+      flex: 1
+    }
+
+    .mobile-nav-links a {
+      font-family: var(--font-display);
+      font-size: clamp(40px, 10vw, 64px);
+      letter-spacing: .02em;
+      color: var(--dim);
+      text-decoration: none;
+      line-height: 1.15;
+      border-bottom: 1px solid var(--border);
+      padding: 16px 0;
+      transition: color .2s, padding-left .3s;
+      display: flex;
+      align-items: center;
+      justify-content: space-between
+    }
+
+    .mobile-nav-links a:hover {
+      color: var(--white);
+      padding-left: 12px
+    }
+
+    .mobile-nav-links a span {
+      font-size: 20px;
+      opacity: 0;
+      transform: translateX(-10px);
+      transition: opacity .2s, transform .2s
+    }
+
+    .mobile-nav-links a:hover span {
+      opacity: 1;
+      transform: translateX(0)
+    }
+
+    .mobile-cta {
+      position: relative;
+      z-index: 2;
+      background: var(--orange);
+      color: #000;
+      font-family: var(--font-body);
+      font-size: 16px;
+      font-weight: 800;
+      padding: 18px;
+      border-radius: 10px;
+      text-decoration: none;
+      text-align: center;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      display: block;
+      margin-top: 24px;
+      transition: background .2s
+    }
+
+    .mobile-cta:hover {
+      background: var(--yellow)
+    }
+
+    .mobile-footer {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border)
+    }
+
+    .mobile-footer-brand {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: .1em
+    }
+
+    .mobile-socials {
+      display: flex;
+      gap: 10px
+    }
+
+    .mobile-socials a {
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 12px;
+      transition: border-color .2s, color .2s
+    }
+
+    .mobile-socials a:hover {
+      border-color: var(--orange);
+      color: var(--orange)
+    }
+
     /* ── MOBILE ── */
     @media(max-width:768px) {
       nav {
@@ -1460,6 +1658,10 @@
 
       .nav-links {
         display: none
+      }
+
+      .hamburger {
+        display: flex
       }
 
       .hero {
@@ -1508,8 +1710,29 @@
       <a href="#moods">Moods</a>
       <a href="about.html">About</a>
     </div>
-    <a href="about.html" class="nav-cta">Get Early Access</a>
+
+    <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
   </nav>
+
+  <!-- MOBILE MENU DRAWER -->
+  <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+    <div class="mobile-nav-links">
+      <a href="#how" class="mobile-link">How It Works <span>→</span></a>
+      <a href="#moods" class="mobile-link">Moods <span>→</span></a>
+      <a href="#services" class="mobile-link">Services <span>→</span></a>
+      <a href="about.html" class="mobile-link">About <span>→</span></a>
+    </div>
+    <a href="about.html#notify" class="mobile-cta">Get Early Access →</a>
+    <div class="mobile-footer">
+      <div class="mobile-footer-brand">CASUAL-CRAVE.COM</div>
+      <div class="mobile-socials">
+        <a href="https://x.com/21stdev" target="_blank">𝕏</a>
+        <a href="https://www.linkedin.com/in/21stdev" target="_blank">in</a>
+      </div>
+    </div>
+  </div>
 
   <!-- HERO -->
   <section class="hero">
@@ -1872,7 +2095,7 @@
     <p class="section-sub">Join thousands of people who've stopped wasting time and started living their best impulse
       moments. Your vibe is out there. Go find it.</p>
     <div class="hero-actions">
-      <a href="about.html" class="btn-dark">
+      <a href="#" class="btn-dark">
         Join CasualCrave Free
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <path d="M5 12h14M13 6l6 6-6 6" />
@@ -1899,7 +2122,7 @@
       </div>
       <div class="footer-col">
         <h4>Company</h4>
-        <a href="about.html">About Us</a>
+        <a href="#">About Us</a>
         <a href="#">Blog</a>
         <a href="#">Careers</a>
         <a href="#">Press</a>
@@ -1907,18 +2130,19 @@
       </div>
       <div class="footer-col">
         <h4>Legal</h4>
-        <a href="privacy-policy.html">Privacy Policy</a>
-        <a href="privacy-policy.html ">Terms of Use</a>
-        <a href="privacy-policy.html">Cookie Policy</a>
-        <a href="about.html">Contact</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Use</a>
+        <a href="#">Cookie Policy</a>
+        <a href="#">Contact</a>
       </div>
     </div>
     <div class="footer-bottom">
       <div class="footer-copy">© 2026 CasualCrave · casual-crave.com · All rights reserved</div>
       <div class="footer-socials">
-        <a href="https://x.com/casualcravehq" class="social-link">𝕏</a>
-        <a href="https://instagram.com/casualcrave" class="social-link">ig</a>
-
+        <a href="#" class="social-link">𝕏</a>
+        <a href="#" class="social-link">in</a>
+        <a href="#" class="social-link">ig</a>
+        <a href="#" class="social-link">tk</a>
       </div>
     </div>
   </footer>
@@ -1966,7 +2190,50 @@
       });
     }
 
-    // Scroll reveal
+    // ── Hamburger menu
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    let menuOpen = false;
+
+    function openMenu() {
+      menuOpen = true;
+      hamburger.classList.add('open');
+      mobileMenu.classList.add('open');
+      hamburger.setAttribute('aria-expanded', 'true');
+      mobileMenu.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      // Stagger link animation
+      document.querySelectorAll('.mobile-nav-links a').forEach((el, i) => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateX(30px)';
+        setTimeout(() => {
+          el.style.transition = `opacity .4s ${i * .08}s ease, transform .4s ${i * .08}s ease, color .2s, padding-left .3s`;
+          el.style.opacity = '1';
+          el.style.transform = 'translateX(0)';
+        }, 10);
+      });
+    }
+
+    function closeMenu() {
+      menuOpen = false;
+      hamburger.classList.remove('open');
+      mobileMenu.classList.remove('open');
+      hamburger.setAttribute('aria-expanded', 'false');
+      mobileMenu.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+
+    hamburger.addEventListener('click', () => menuOpen ? closeMenu() : openMenu());
+
+    // Close when a link is tapped
+    document.querySelectorAll('.mobile-link, .mobile-cta').forEach(el => {
+      el.addEventListener('click', closeMenu);
+    });
+
+    // Close on Escape
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && menuOpen) closeMenu(); });
+
+    // ── Scroll reveal
     const observer = new IntersectionObserver(entries => {
       entries.forEach(e => {
         if (e.isIntersecting) { e.target.style.opacity = '1'; e.target.style.transform = 'translateY(0)'; }
