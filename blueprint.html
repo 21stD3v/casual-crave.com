@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CasualCrave — System Architecture & Product Blueprint</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,400;0,600;0,700;0,900;1,400&family=Barlow+Condensed:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --orange: #FF5500;
+  --orange-dim: rgba(255,85,0,0.12);
+  --amber: #FFB830;
+  --black: #0A0A0A;
+  --dark: #111111;
+  --dark2: #181818;
+  --dark3: #1F1F1F;
+  --border: #252525;
+  --white: #FFFFFF;
+  --gray: #888;
+  --gray-light: #BCBCBC;
+  --teal: #00CCDD;
+  --pink: #FF3399;
+  --yellow: #CCBB00;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--dark);
+  color: var(--white);
+  font-family: 'Barlow', sans-serif;
+  font-size: 15px;
+  line-height: 1.7;
+  counter-reset: section;
+}
+
+/* ── COVER ── */
+.cover {
+  min-height: 100vh;
+  background: var(--black);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 80px 100px;
+  position: relative;
+  overflow: hidden;
+  page-break-after: always;
+}
+.cover::before {
+  content:'';
+  position:absolute;
+  inset:0;
+  background-image: linear-gradient(#1a1a1a 1px, transparent 1px), linear-gradient(90deg, #1a1a1a 1px, transparent 1px);
+  background-size:60px 60px;
+}
+.cover::after {
+  content:'';
+  position:absolute;
+  top:-100px; right:-100px;
+  width:700px; height:700px;
+  background: radial-gradient(ellipse, rgba(61,18,0,0.7) 0%, transparent 65%);
+}
+.cover-content { position:relative; z-index:2; }
+.cover-label {
+  font-size:11px; letter-spacing:5px; color:var(--orange);
+  text-transform:uppercase; font-weight:700; margin-bottom:32px;
+}
+.cover-title {
+  font-family:'Bebas Neue', sans-serif;
+  font-size: 100px;
+  line-height: 0.9;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+.cover-title span { color: var(--orange); }
+.cover-sub {
+  font-family:'Barlow Condensed', sans-serif;
+  font-weight:900;
+  font-size:28px;
+  color:var(--gray);
+  letter-spacing: 2px;
+  margin-bottom: 48px;
+}
+.cover-divider {
+  width:80px; height:3px; background:var(--orange); margin-bottom:40px;
+}
+.cover-desc {
+  max-width:640px;
+  font-size:17px;
+  color:var(--gray-light);
+  line-height:1.8;
+  margin-bottom:60px;
+}
+.cover-meta {
+  display:flex; gap:60px;
+}
+.cover-meta-item label {
+  display:block; font-size:10px; letter-spacing:3px;
+  color:var(--gray); text-transform:uppercase; margin-bottom:6px;
+}
+.cover-meta-item span {
+  font-size:14px; font-weight:700; color:var(--white);
+}
+
+/* ── TOC ── */
+.toc-page {
+  padding: 80px 100px;
+  background: var(--dark);
+  border-bottom: 1px solid var(--border);
+}
+.toc-title {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:48px; color:var(--orange);
+  letter-spacing:3px; margin-bottom:48px;
+}
+.toc-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:4px;
+}
+.toc-item {
+  display:flex; align-items:baseline; gap:16px;
+  padding:16px 0; border-bottom:1px solid var(--border);
+}
+.toc-num {
+  font-family:'Bebas Neue',sans-serif; font-size:32px;
+  color:var(--orange); opacity:0.4; width:48px; flex-shrink:0;
+  line-height:1;
+}
+.toc-name { font-size:14px; font-weight:700; color:var(--gray-light); letter-spacing:1px; }
+.toc-sub  { font-size:12px; color:var(--gray); margin-top:2px; }
+
+/* ── CHAPTER HEADER ── */
+.chapter {
+  padding:80px 100px 48px;
+  background:var(--dark);
+  border-bottom: 1px solid var(--border);
+  position:relative;
+  overflow:hidden;
+}
+.chapter::before {
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:3px;
+  background: linear-gradient(90deg, var(--orange), transparent);
+}
+.chapter-num {
+  font-family:'Bebas Neue',sans-serif; font-size:120px;
+  color:var(--orange); opacity:0.06;
+  position:absolute; top:20px; right:60px;
+  line-height:1; letter-spacing:-4px;
+}
+.chapter-label {
+  font-size:10px; letter-spacing:5px; color:var(--orange);
+  text-transform:uppercase; font-weight:700; margin-bottom:16px;
+}
+.chapter-title {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:56px; line-height:1; letter-spacing:2px;
+  margin-bottom:16px;
+}
+.chapter-desc {
+  font-size:16px; color:var(--gray); max-width:700px; line-height:1.7;
+}
+
+/* ── CONTENT ── */
+.content {
+  padding: 60px 100px;
+  background: var(--dark);
+  border-bottom: 1px solid var(--border);
+}
+
+h2 {
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:900; font-size:24px;
+  color:var(--white); letter-spacing:1px;
+  margin: 40px 0 16px;
+  padding-bottom:10px;
+  border-bottom:1px solid var(--border);
+  text-transform:uppercase;
+}
+h2:first-child { margin-top:0; }
+
+h3 {
+  font-size:15px; font-weight:700; color:var(--amber);
+  margin:28px 0 10px; letter-spacing:1px;
+  text-transform:uppercase;
+}
+
+p { margin-bottom:14px; color:var(--gray-light); }
+p strong { color:var(--white); font-weight:700; }
+
+/* ── CARDS ── */
+.card-grid {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin:24px 0;
+}
+.card-grid-2 {
+  display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:24px 0;
+}
+.card {
+  background:var(--dark2); border:1px solid var(--border);
+  border-radius:4px; padding:28px;
+}
+.card-accent { border-left:3px solid var(--orange); }
+.card-teal   { border-left:3px solid var(--teal); }
+.card-pink   { border-left:3px solid var(--pink); }
+.card-yellow { border-left:3px solid var(--yellow); }
+.card-title {
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:900; font-size:16px; color:var(--white);
+  margin-bottom:8px; letter-spacing:1px; text-transform:uppercase;
+}
+.card p { font-size:13px; color:var(--gray); margin:0; line-height:1.6; }
+
+/* ── CODE BLOCKS ── */
+.code-block {
+  background:#0D0D0D; border:1px solid #2a2a2a;
+  border-radius:4px; padding:28px 32px;
+  margin:20px 0; overflow-x:auto;
+}
+.code-block pre {
+  font-family:'JetBrains Mono', monospace;
+  font-size:12px; line-height:1.8;
+  color:#ccc;
+}
+.code-block .comment { color:#555; }
+.code-block .key     { color:var(--amber); }
+.code-block .str     { color:#88CC88; }
+.code-block .kw      { color:var(--teal); }
+.code-block .num     { color:#FF9966; }
+.code-block .type    { color:var(--pink); }
+.code-label {
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px; letter-spacing:2px;
+  color:var(--gray); margin-bottom:8px;
+  text-transform:uppercase;
+}
+
+/* ── FLOW DIAGRAM ── */
+.flow {
+  display:flex; align-items:center; gap:0;
+  margin:28px 0; flex-wrap:wrap;
+}
+.flow-step {
+  background:var(--dark2); border:1px solid var(--border);
+  padding:14px 20px; flex:1; min-width:120px;
+  text-align:center; position:relative;
+}
+.flow-step-num {
+  font-size:10px; color:var(--orange); letter-spacing:2px; margin-bottom:4px;
+  font-weight:700;
+}
+.flow-step-name {
+  font-size:13px; font-weight:700; color:var(--white);
+}
+.flow-step-sub {
+  font-size:11px; color:var(--gray); margin-top:3px;
+}
+.flow-arrow {
+  width:32px; flex-shrink:0; text-align:center;
+  color:var(--orange); font-size:18px;
+}
+
+/* ── SCHEMA TABLES ── */
+.schema-table {
+  width:100%; border-collapse:collapse; margin:20px 0;
+  font-size:13px;
+}
+.schema-table th {
+  background:#0D0D0D; padding:12px 16px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:900; font-size:12px; letter-spacing:2px;
+  color:var(--orange); text-transform:uppercase;
+  text-align:left; border-bottom:2px solid var(--border);
+}
+.schema-table td {
+  padding:11px 16px; border-bottom:1px solid var(--border);
+  color:var(--gray-light); vertical-align:top;
+}
+.schema-table tr:hover td { background:rgba(255,85,0,0.03); }
+.schema-table .field { color:var(--amber); font-family:'JetBrains Mono',monospace; font-size:12px; }
+.schema-table .type-tag {
+  display:inline-block; padding:2px 8px;
+  background:#1a1a1a; border:1px solid var(--border);
+  border-radius:2px; font-family:'JetBrains Mono',monospace;
+  font-size:11px; color:var(--teal);
+}
+.schema-table .pk { color:var(--orange); font-size:10px; font-weight:700; letter-spacing:1px; }
+.schema-table .idx { color:var(--pink); font-size:10px; font-weight:700; letter-spacing:1px; }
+
+/* ── ENDPOINT BLOCKS ── */
+.endpoint {
+  display:flex; align-items:flex-start; gap:16px;
+  background:var(--dark2); border:1px solid var(--border);
+  padding:20px 24px; margin:12px 0; border-radius:4px;
+}
+.method {
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px; font-weight:700; padding:4px 10px;
+  border-radius:3px; flex-shrink:0; margin-top:2px;
+  letter-spacing:1px;
+}
+.get  { background:rgba(0,204,221,0.15); color:var(--teal); border:1px solid var(--teal); }
+.post { background:rgba(255,85,0,0.15);  color:var(--orange); border:1px solid var(--orange); }
+.put  { background:rgba(255,187,48,0.15); color:var(--amber); border:1px solid var(--amber); }
+.del  { background:rgba(255,51,153,0.15); color:var(--pink); border:1px solid var(--pink); }
+.endpoint-path {
+  font-family:'JetBrains Mono',monospace; font-size:14px;
+  color:var(--white); margin-bottom:4px;
+}
+.endpoint-desc { font-size:13px; color:var(--gray); }
+
+/* ── PILLS & TAGS ── */
+.tag {
+  display:inline-block; padding:3px 10px;
+  background:var(--orange-dim); border:1px solid rgba(255,85,0,0.3);
+  border-radius:2px; font-size:12px; color:var(--orange);
+  font-weight:700; letter-spacing:1px; margin:3px 3px 3px 0;
+}
+.tag-teal  { background:rgba(0,204,221,0.1); border-color:rgba(0,204,221,0.3); color:var(--teal); }
+.tag-pink  { background:rgba(255,51,153,0.1); border-color:rgba(255,51,153,0.3); color:var(--pink); }
+.tag-amber { background:rgba(255,184,48,0.1); border-color:rgba(255,184,48,0.3); color:var(--amber); }
+
+/* ── CALLOUTS ── */
+.callout {
+  border-left:3px solid var(--orange);
+  background:var(--orange-dim);
+  padding:20px 24px; margin:24px 0;
+  border-radius:0 4px 4px 0;
+}
+.callout-teal { border-color:var(--teal); background:rgba(0,204,221,0.06); }
+.callout-pink { border-color:var(--pink); background:rgba(255,51,153,0.06); }
+.callout strong { color:var(--orange); }
+.callout-teal strong { color:var(--teal); }
+.callout-pink strong { color:var(--pink); }
+.callout p { color:var(--gray-light); margin:0; font-size:14px; }
+
+/* ── ROADMAP ── */
+.roadmap-lane {
+  display:grid; grid-template-columns:140px 1fr;
+  gap:0; margin:8px 0;
+}
+.roadmap-phase {
+  background:var(--orange); color:#000;
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:900; font-size:13px; letter-spacing:2px;
+  padding:20px 16px; text-transform:uppercase;
+  display:flex; align-items:center; justify-content:center;
+  text-align:center;
+}
+.roadmap-phase.p2 { background:#222; color:var(--orange); border:1px solid var(--orange); }
+.roadmap-phase.p3 { background:#222; color:var(--amber); border:1px solid var(--amber); }
+.roadmap-items {
+  background:var(--dark2); border:1px solid var(--border);
+  border-left:none; padding:20px 28px;
+  display:flex; flex-wrap:wrap; gap:8px; align-items:center;
+}
+.roadmap-items .item {
+  font-size:13px; color:var(--gray-light);
+  background:#111; border:1px solid var(--border);
+  padding:6px 14px; border-radius:2px;
+}
+
+/* ── METRIC CARDS ── */
+.metrics {
+  display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin:24px 0;
+}
+.metric {
+  background:var(--dark2); border:1px solid var(--border);
+  padding:28px 24px; text-align:center;
+}
+.metric-val {
+  font-family:'Bebas Neue',sans-serif; font-size:48px;
+  color:var(--orange); line-height:1; margin-bottom:8px;
+}
+.metric-label { font-size:12px; color:var(--gray); letter-spacing:2px; text-transform:uppercase; }
+
+/* ── PRINT ── */
+@media print {
+  body { background:#fff; color:#000; }
+  .cover { background:#000; min-height:auto; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════ COVER -->
+<div class="cover">
+  <div class="cover-content">
+    <div class="cover-label">Technical Blueprint · Venture Scale</div>
+    <div class="cover-title">Casual<span>Crave</span></div>
+    <div class="cover-sub">System Architecture & Product Blueprint</div>
+    <div class="cover-divider"></div>
+    <p class="cover-desc">
+      A complete technical specification covering system architecture, database design,
+      AI pipelines, recommendation engine, API contracts, infrastructure strategy,
+      and go-to-market execution for a $100M+ mood-powered discovery platform.
+    </p>
+    <div class="cover-meta">
+      <div class="cover-meta-item">
+        <label>Platform</label>
+        <span>CasualCrave v1.0</span>
+      </div>
+      <div class="cover-meta-item">
+        <label>Document Type</label>
+        <span>Engineering + Product Spec</span>
+      </div>
+      <div class="cover-meta-item">
+        <label>Target Scale</label>
+        <span>10M+ Users / Global</span>
+      </div>
+      <div class="cover-meta-item">
+        <label>Website</label>
+        <span>casual-crave.com</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ TOC -->
+<div class="toc-page">
+  <div class="toc-title">Contents</div>
+  <div class="toc-grid">
+    <div class="toc-item">
+      <div class="toc-num">01</div>
+      <div><div class="toc-name">Product Architecture</div><div class="toc-sub">Vision, pillars, interaction model</div></div>
+    </div>
+    <div class="toc-item">
+      <div class="toc-num">02</div>
+      <div><div class="toc-name">System Architecture</div><div class="toc-sub">Services, layers, data flow</div></div>
+    </div>
+    <div class="toc-item">
+      <div class="toc-num">03</div>
+      <div><div class="toc-name">Database Schema</div><div class="toc-sub">Tables, relations, indexing</div></div>
+    </div>
+    <div class="toc-item">
+      <div class="toc-num">04</div>
+      <div><div class="toc-name">Recommendation Engine</div><div class="toc-sub">Scoring, ranking, embeddings</div></div>
+    </div>
+    <div class="toc-item">
+      <div class="toc-num">05</div>
+      <div><div class="toc-name">AI Mood Pipeline</div><div class="toc-sub">NLP, intent, taxonomy, context</div></div>
+    </div>
+    <div class="toc-item">
+      <div class="toc-num">06</div>
+      <div><div class="toc-name">API Design</div><div class="toc-sub">REST contracts, auth, schemas</div></div>
+    </div>
+    <div class="toc-item">
+      <div class="toc-num">07</div>
+      <div><div class="toc-name">Infrastructure & Scaling</div><div class="toc-sub">AWS, caching, geo, multi-region</div></div>
+    </div>
+    <div class="toc-item">
+      <div class="toc-num">08</div>
+      <div><div class="toc-name">MVP Roadmap</div><div class="toc-sub">Phases, milestones, priorities</div></div>
+    </div>
+    <div class="toc-item">
+      <div class="toc-num">09</div>
+      <div><div class="toc-name">Growth Strategy</div><div class="toc-sub">Loops, virality, social mechanics</div></div>
+    </div>
+    <div class="toc-item">
+      <div class="toc-num">10</div>
+      <div><div class="toc-name">Monetization</div><div class="toc-sub">Revenue models, unit economics</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ 01 PRODUCT ARCHITECTURE -->
+<div class="chapter">
+  <div class="chapter-num">01</div>
+  <div class="chapter-label">Section 01</div>
+  <div class="chapter-title">Product Architecture</div>
+  <div class="chapter-desc">Vision, core interaction model, feature pillars, and product surface areas that define CasualCrave's competitive moat.</div>
+</div>
+<div class="content">
+
+  <h2>Core Interaction Model</h2>
+  <p>CasualCrave operates on a single, repeatable loop that removes decision friction entirely. The interaction collapses what previously required 10+ minutes of searching into a single mood expression.</p>
+
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-step-num">01</div>
+      <div class="flow-step-name">Mood Input</div>
+      <div class="flow-step-sub">Text, voice, buttons</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-step-num">02</div>
+      <div class="flow-step-name">AI Interpretation</div>
+      <div class="flow-step-sub">Intent + context</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-step-num">03</div>
+      <div class="flow-step-name">Experience Match</div>
+      <div class="flow-step-sub">Ranked candidates</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-step-num">04</div>
+      <div class="flow-step-name">Instant Plan</div>
+      <div class="flow-step-sub">Multi-stop itinerary</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-step-num">05</div>
+      <div class="flow-step-name">Craving Loop</div>
+      <div class="flow-step-sub">Share + social signal</div>
+    </div>
+  </div>
+
+  <h2>Five Product Pillars</h2>
+  <div class="card-grid">
+    <div class="card card-accent">
+      <div class="card-title">Mood Engine</div>
+      <p>AI-driven mood interpretation. Maps unstructured emotional input to structured intent with category, urgency, budget, and group-size signals.</p>
+    </div>
+    <div class="card card-teal">
+      <div class="card-title">Discovery Engine</div>
+      <p>Geo-aware recommendation ranking. Combines embeddings, real-time signals, and collaborative filtering to surface the highest-relevance experience.</p>
+    </div>
+    <div class="card card-pink">
+      <div class="card-title">Plan Builder</div>
+      <p>Multi-stop itinerary generator. Sequences experiences based on time, proximity, and category logic into a coherent real-world plan.</p>
+    </div>
+    <div class="card card-accent">
+      <div class="card-title">Craving Feed</div>
+      <p>Social discovery layer. Real-time activity stream showing what people around you are craving and experiencing. Core viral loop.</p>
+    </div>
+    <div class="card card-teal">
+      <div class="card-title">City Pulse</div>
+      <p>Aggregated trend surface. Shows what a city is craving in real time — enabling hyperlocal marketing and business intelligence.</p>
+    </div>
+    <div class="card card-yellow">
+      <div class="card-title">Business Layer</div>
+      <p>Merchant dashboard, promoted listings, analytics. B2B surface that turns the discovery network into direct revenue.</p>
+    </div>
+  </div>
+
+  <h2>Competitive Moat</h2>
+  <p>CasualCrave's defensibility comes from three compounding advantages that get stronger with scale:</p>
+  <div class="card-grid-2">
+    <div class="card card-accent">
+      <div class="card-title">Behavioral Data Flywheel</div>
+      <p>Every mood input, click, visit, and share trains the recommendation model. No competitor can replicate a trained mood→experience corpus without the users to generate it. The model gets meaningfully better past 100k MAU.</p>
+    </div>
+    <div class="card card-teal">
+      <div class="card-title">Social Graph Lock-in</div>
+      <p>The Craving Feed creates follow relationships and social proof loops. Switching cost increases as your social graph deepens — identical to early Instagram mechanics applied to local discovery.</p>
+    </div>
+    <div class="card card-pink">
+      <div class="card-title">Local Network Density</div>
+      <p>Discovery quality in any given city is a function of how many users AND businesses are on the platform. Density creates geo-specific moats that are extremely expensive for global platforms to replicate city by city.</p>
+    </div>
+    <div class="card card-yellow">
+      <div class="card-title">Mood Taxonomy IP</div>
+      <p>The proprietary mood taxonomy, intent mapping, and vector space for experience categories becomes an increasingly sophisticated knowledge graph that is difficult to replicate through traditional keyword search.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ 02 SYSTEM ARCHITECTURE -->
+<div class="chapter">
+  <div class="chapter-num">02</div>
+  <div class="chapter-label">Section 02</div>
+  <div class="chapter-title">System Architecture</div>
+  <div class="chapter-desc">Microservices decomposition, data flow, event bus design, and service boundaries for a horizontally scalable platform.</div>
+</div>
+<div class="content">
+
+  <h2>Service Decomposition</h2>
+  <p>CasualCrave is a <strong>domain-driven microservices architecture</strong> with clear bounded contexts. Each service owns its data, exposes a versioned API, and communicates asynchronously via event bus for non-critical paths.</p>
+
+  <div class="card-grid">
+    <div class="card card-accent">
+      <div class="card-title">API Gateway</div>
+      <p>Kong or AWS API Gateway. Rate limiting, auth passthrough (JWT validation), request routing, response caching. Single entry point for all clients.</p>
+    </div>
+    <div class="card card-accent">
+      <div class="card-title">Auth Service</div>
+      <p>JWT + refresh token issuing. OAuth2 social login (Google, Apple). Phone OTP for African markets. Stateless, horizontally scalable.</p>
+    </div>
+    <div class="card card-accent">
+      <div class="card-title">Mood Service</div>
+      <p>Accepts raw mood input. Calls AI Interpretation Service, returns structured MoodIntent object. Stores craving history per user.</p>
+    </div>
+    <div class="card card-teal">
+      <div class="card-title">AI Interpretation Service</div>
+      <p>Python FastAPI service wrapping OpenAI + custom fine-tuned classifier. Converts freeform text to MoodIntent schema. Own scaling pool.</p>
+    </div>
+    <div class="card card-teal">
+      <div class="card-title">Recommendation Service</div>
+      <p>Core ranking engine. Takes MoodIntent + geo context, queries vector store + Postgres, applies scoring function, returns ranked experience list.</p>
+    </div>
+    <div class="card card-teal">
+      <div class="card-title">Plan Builder Service</div>
+      <p>Takes top-N experiences from Recommendation Service, applies sequencing logic (time, distance, category), outputs Itinerary object.</p>
+    </div>
+    <div class="card card-pink">
+      <div class="card-title">Places Service</div>
+      <p>Owns the places/experiences data model. Handles ingestion from Google Places, Yelp, OSM. Manages enrichment, deduplication, embedding generation.</p>
+    </div>
+    <div class="card card-pink">
+      <div class="card-title">Feed Service</div>
+      <p>Craving Feed fanout. Redis-backed activity stream. Follows social graph to personalize feed. Powers City Pulse aggregation.</p>
+    </div>
+    <div class="card card-yellow">
+      <div class="card-title">Notification Service</div>
+      <p>Push (FCM/APNs), email, SMS. Event-driven via Kafka. Smart batching to avoid notification fatigue. Time-of-day aware delivery.</p>
+    </div>
+  </div>
+
+  <h2>Data Flow Architecture</h2>
+  <div class="code-block">
+    <div class="code-label">Event Flow — Mood to Recommendation</div>
+    <pre>
+<span class="comment">// ── User submits mood ──────────────────────────────────────────</span>
+Client
+  → POST /api/v1/mood
+  → API Gateway (auth check, rate limit)
+  → Mood Service
+
+<span class="comment">// ── Sync path (p99 &lt; 800ms) ──────────────────────────────────</span>
+Mood Service
+  → AI Interpretation Service  [Python/FastAPI, GPU-backed if needed]
+  ← MoodIntent { category[], intent, budget, groupSize, urgency }
+
+Mood Service
+  → Recommendation Service [Node/NestJS]
+  ← RankedExperience[]
+
+Recommendation Service
+  → Places Service           [geo query + embedding search]
+  → Redis cache              [TTL 5min per geo-hash + mood-category]
+  ← Top 20 candidates
+
+<span class="comment">// ── Async path (fire and forget) ──────────────────────────────</span>
+Mood Service
+  → Kafka: craving.created   [fanout to Feed, Analytics, City Pulse]
+
+Feed Service
+  ← Kafka: craving.created
+  → Write to user activity stream (Redis sorted set)
+  → Fanout to followers (Redis pipeline)
+
+Analytics Service
+  ← Kafka: craving.created
+  → ClickHouse: aggregate mood trends per city/hour
+    </pre>
+  </div>
+
+  <h2>Tech Stack Decisions</h2>
+  <table class="schema-table">
+    <tr><th>Layer</th><th>Technology</th><th>Rationale</th></tr>
+    <tr><td>Web Frontend</td><td><span class="type-tag">Next.js 14 (App Router)</span></td><td>SSR for SEO on place pages. RSC for performance. Vercel edge deployment.</td></tr>
+    <tr><td>Mobile</td><td><span class="type-tag">React Native + Expo</span></td><td>Single codebase iOS/Android. Expo EAS for CI/CD. Fast iteration.</td></tr>
+    <tr><td>API Services</td><td><span class="type-tag">NestJS (TypeScript)</span></td><td>Decorators, DI, modular architecture. Matches team skills. OpenAPI auto-gen.</td></tr>
+    <tr><td>AI Service</td><td><span class="type-tag">FastAPI (Python)</span></td><td>Python ecosystem for ML. Async. Deployed on separate container with higher CPU/memory.</td></tr>
+    <tr><td>Primary DB</td><td><span class="type-tag">PostgreSQL 16 + PostGIS</span></td><td>Geo queries native. ACID. pgvector for embeddings co-located. Strong consistency.</td></tr>
+    <tr><td>Cache</td><td><span class="type-tag">Redis Cluster</span></td><td>Feed fanout, recommendation cache, session store, rate limiting counters.</td></tr>
+    <tr><td>Search</td><td><span class="type-tag">Elasticsearch / OpenSearch</span></td><td>Full-text place search, faceted filtering, relevance scoring.</td></tr>
+    <tr><td>Vector Store</td><td><span class="type-tag">pgvector (embedded in PG)</span></td><td>Mood→experience embedding similarity. Keeps infra simple at MVP scale. Migrate to Pinecone at 50M+ vectors.</td></tr>
+    <tr><td>Event Bus</td><td><span class="type-tag">Apache Kafka (MSK)</span></td><td>Durable, replayable event log. Core to async service communication and analytics ingestion.</td></tr>
+    <tr><td>Analytics</td><td><span class="type-tag">ClickHouse</span></td><td>City Pulse aggregation. Sub-second OLAP on billions of craving events. Columnar = fast aggregations.</td></tr>
+    <tr><td>Maps</td><td><span class="type-tag">Mapbox GL JS</span></td><td>Custom styling (matches brand). Cheaper than Google Maps at scale. Vector tiles.</td></tr>
+    <tr><td>Infra</td><td><span class="type-tag">AWS (ECS Fargate + RDS + ElastiCache)</span></td><td>Managed services reduce ops overhead at early scale. ECS Fargate for serverless container execution.</td></tr>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════════ 03 DATABASE SCHEMA -->
+<div class="chapter">
+  <div class="chapter-num">03</div>
+  <div class="chapter-label">Section 03</div>
+  <div class="chapter-title">Database Schema</div>
+  <div class="chapter-desc">PostgreSQL schema with PostGIS extensions, indexing strategy, and relationship design for all core entities.</div>
+</div>
+<div class="content">
+
+  <h2>Users</h2>
+  <table class="schema-table">
+    <tr><th>Field</th><th>Type</th><th>Notes</th></tr>
+    <tr><td class="field">id</td><td><span class="type-tag">uuid</span></td><td><span class="pk">PK</span> gen_random_uuid()</td></tr>
+    <tr><td class="field">phone</td><td><span class="type-tag">varchar(20)</span></td><td><span class="idx">UNIQUE INDEX</span> Primary identity for African markets</td></tr>
+    <tr><td class="field">email</td><td><span class="type-tag">varchar(255)</span></td><td><span class="idx">UNIQUE INDEX</span> Optional</td></tr>
+    <tr><td class="field">username</td><td><span class="type-tag">varchar(50)</span></td><td><span class="idx">UNIQUE INDEX</span> Public handle</td></tr>
+    <tr><td class="field">display_name</td><td><span class="type-tag">varchar(100)</span></td><td></td></tr>
+    <tr><td class="field">avatar_url</td><td><span class="type-tag">text</span></td><td>S3/CDN URL</td></tr>
+    <tr><td class="field">home_location</td><td><span class="type-tag">geography(Point)</span></td><td><span class="idx">GIST INDEX</span> PostGIS point</td></tr>
+    <tr><td class="field">last_location</td><td><span class="type-tag">geography(Point)</span></td><td><span class="idx">GIST INDEX</span> Updated on app open</td></tr>
+    <tr><td class="field">city_id</td><td><span class="type-tag">uuid</span></td><td>FK → cities.id</td></tr>
+    <tr><td class="field">mood_preferences</td><td><span class="type-tag">jsonb</span></td><td>Learned category weights {food: 0.8, nightlife: 0.3, ...}</td></tr>
+    <tr><td class="field">price_preference</td><td><span class="type-tag">smallint</span></td><td>1–4 (budget to luxury)</td></tr>
+    <tr><td class="field">created_at</td><td><span class="type-tag">timestamptz</span></td><td>DEFAULT now()</td></tr>
+    <tr><td class="field">is_business</td><td><span class="type-tag">boolean</span></td><td>Merchant accounts</td></tr>
+  </table>
+
+  <h2>Places</h2>
+  <table class="schema-table">
+    <tr><th>Field</th><th>Type</th><th>Notes</th></tr>
+    <tr><td class="field">id</td><td><span class="type-tag">uuid</span></td><td><span class="pk">PK</span></td></tr>
+    <tr><td class="field">external_id</td><td><span class="type-tag">varchar(100)</span></td><td>Google Place ID / Yelp ID for dedup</td></tr>
+    <tr><td class="field">source</td><td><span class="type-tag">enum</span></td><td>google_places | yelp | osm | manual</td></tr>
+    <tr><td class="field">name</td><td><span class="type-tag">varchar(200)</span></td><td><span class="idx">GIN TRGM INDEX</span> fuzzy search</td></tr>
+    <tr><td class="field">location</td><td><span class="type-tag">geography(Point)</span></td><td><span class="idx">GIST INDEX</span> Core geo query field</td></tr>
+    <tr><td class="field">address</td><td><span class="type-tag">jsonb</span></td><td>{street, city, state, country, zip}</td></tr>
+    <tr><td class="field">categories</td><td><span class="type-tag">text[]</span></td><td><span class="idx">GIN INDEX</span> ["restaurant","italian","date-night"]</td></tr>
+    <tr><td class="field">mood_tags</td><td><span class="type-tag">text[]</span></td><td><span class="idx">GIN INDEX</span> ["romantic","chill","adventurous"]</td></tr>
+    <tr><td class="field">embedding</td><td><span class="type-tag">vector(1536)</span></td><td><span class="idx">HNSW INDEX</span> pgvector, OpenAI ada-002</td></tr>
+    <tr><td class="field">rating</td><td><span class="type-tag">numeric(3,2)</span></td><td>Aggregated from sources</td></tr>
+    <tr><td class="field">review_count</td><td><span class="type-tag">integer</span></td><td></td></tr>
+    <tr><td class="field">price_level</td><td><span class="type-tag">smallint</span></td><td>1–4</td></tr>
+    <tr><td class="field">hours</td><td><span class="type-tag">jsonb</span></td><td>{mon: [{open:"09:00", close:"22:00"}], ...}</td></tr>
+    <tr><td class="field">is_open_now</td><td><span class="type-tag">boolean</span></td><td>Computed column, updated via cron</td></tr>
+    <tr><td class="field">crave_score</td><td><span class="type-tag">numeric(6,4)</span></td><td>Platform-specific popularity signal, decays over time</td></tr>
+    <tr><td class="field">photos</td><td><span class="type-tag">jsonb[]</span></td><td>CDN URLs + attribution</td></tr>
+    <tr><td class="field">city_id</td><td><span class="type-tag">uuid</span></td><td>FK → cities.id</td></tr>
+  </table>
+
+  <h2>Cravings (Core Activity Entity)</h2>
+  <table class="schema-table">
+    <tr><th>Field</th><th>Type</th><th>Notes</th></tr>
+    <tr><td class="field">id</td><td><span class="type-tag">uuid</span></td><td><span class="pk">PK</span></td></tr>
+    <tr><td class="field">user_id</td><td><span class="type-tag">uuid</span></td><td><span class="idx">INDEX</span> FK → users.id</td></tr>
+    <tr><td class="field">raw_input</td><td><span class="type-tag">text</span></td><td>Original user mood text</td></tr>
+    <tr><td class="field">mood_intent</td><td><span class="type-tag">jsonb</span></td><td>Full MoodIntent object from AI pipeline</td></tr>
+    <tr><td class="field">location_at_request</td><td><span class="type-tag">geography(Point)</span></td><td><span class="idx">GIST INDEX</span></td></tr>
+    <tr><td class="field">city_id</td><td><span class="type-tag">uuid</span></td><td><span class="idx">INDEX</span> For City Pulse aggregation</td></tr>
+    <tr><td class="field">recommended_place_ids</td><td><span class="type-tag">uuid[]</span></td><td>Top-N shown to user</td></tr>
+    <tr><td class="field">selected_place_id</td><td><span class="type-tag">uuid</span></td><td>What user tapped / acted on</td></tr>
+    <tr><td class="field">plan_id</td><td><span class="type-tag">uuid</span></td><td>FK → itineraries.id if plan was generated</td></tr>
+    <tr><td class="field">is_public</td><td><span class="type-tag">boolean</span></td><td>Feeds into Craving Feed</td></tr>
+    <tr><td class="field">created_at</td><td><span class="type-tag">timestamptz</span></td><td><span class="idx">BRIN INDEX</span> Time-series queries</td></tr>
+  </table>
+
+  <h2>Itineraries</h2>
+  <table class="schema-table">
+    <tr><th>Field</th><th>Type</th><th>Notes</th></tr>
+    <tr><td class="field">id</td><td><span class="type-tag">uuid</span></td><td><span class="pk">PK</span></td></tr>
+    <tr><td class="field">user_id</td><td><span class="type-tag">uuid</span></td><td>FK → users.id</td></tr>
+    <tr><td class="field">title</td><td><span class="type-tag">varchar(200)</span></td><td>AI-generated, e.g. "Date Night in Abuja"</td></tr>
+    <tr><td class="field">mood_summary</td><td><span class="type-tag">text</span></td><td>e.g. "Romantic dinner + chill drinks"</td></tr>
+    <tr><td class="field">stops</td><td><span class="type-tag">jsonb[]</span></td><td>[{place_id, order, estimated_time, category, note}]</td></tr>
+    <tr><td class="field">total_duration_mins</td><td><span class="type-tag">integer</span></td><td>Estimated total time</td></tr>
+    <tr><td class="field">total_distance_m</td><td><span class="type-tag">integer</span></td><td>Between stops</td></tr>
+    <tr><td class="field">is_shared</td><td><span class="type-tag">boolean</span></td><td>Shareable link generated</td></tr>
+    <tr><td class="field">share_token</td><td><span class="type-tag">varchar(32)</span></td><td><span class="idx">UNIQUE INDEX</span></td></tr>
+    <tr><td class="field">save_count</td><td><span class="type-tag">integer</span></td><td>How many users saved this plan</td></tr>
+    <tr><td class="field">created_at</td><td><span class="type-tag">timestamptz</span></td><td></td></tr>
+  </table>
+
+  <h2>Additional Tables (Schema Summary)</h2>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-title">follows</div>
+      <p>follower_id, following_id, created_at. Composite PK. Bidirectional index.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">reviews</div>
+      <p>user_id, place_id, rating, body, craving_id (context). Partial index on verified_visit.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">city_pulse_snapshots</div>
+      <p>city_id, hour_bucket, top_moods jsonb, top_places uuid[], craving_count. ClickHouse materialized.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">promoted_listings</div>
+      <p>place_id, campaign_id, bid_cpm, target_moods text[], budget_daily, active_from/to, impressions.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">place_checkins</div>
+      <p>user_id, place_id, craving_id, checked_in_at, source (manual|geofence). Powers crave_score decay.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">mood_taxonomy</div>
+      <p>id, label, parent_id (hierarchical), category_mappings jsonb, embedding vector(1536). Static + managed.</p>
+    </div>
+  </div>
+
+  <h2>Indexing Strategy</h2>
+  <div class="callout">
+    <strong>Critical Performance Indexes</strong>
+    <p>The three query patterns that will dominate production load: (1) geo-filtered experience search, (2) user feed hydration, (3) city pulse aggregation. All three have different access patterns and need independent index strategies.</p>
+  </div>
+  <div class="code-block">
+    <div class="code-label">PostgreSQL — Critical Indexes</div>
+    <pre>
+<span class="comment">-- Geo search (most frequent query)</span>
+<span class="kw">CREATE INDEX</span> idx_places_location_gist
+  <span class="kw">ON</span> places <span class="kw">USING</span> GIST(location);
+
+<span class="comment">-- Vector similarity (mood→experience matching)</span>
+<span class="kw">CREATE INDEX</span> idx_places_embedding_hnsw
+  <span class="kw">ON</span> places <span class="kw">USING</span> hnsw(embedding vector_cosine_ops)
+  <span class="kw">WITH</span> (m = <span class="num">16</span>, ef_construction = <span class="num">64</span>);
+
+<span class="comment">-- Feed queries: get user's followers' cravings</span>
+<span class="kw">CREATE INDEX</span> idx_cravings_user_time
+  <span class="kw">ON</span> cravings(user_id, created_at <span class="kw">DESC</span>)
+  <span class="kw">WHERE</span> is_public = <span class="kw">true</span>;
+
+<span class="comment">-- City Pulse: mood aggregation per city per hour</span>
+<span class="kw">CREATE INDEX</span> idx_cravings_city_time
+  <span class="kw">ON</span> cravings(city_id, created_at <span class="kw">DESC</span>);
+
+<span class="comment">-- Fuzzy place name search</span>
+<span class="kw">CREATE INDEX</span> idx_places_name_trgm
+  <span class="kw">ON</span> places <span class="kw">USING</span> GIN(name gin_trgm_ops);
+
+<span class="comment">-- Mood tag filtering</span>
+<span class="kw">CREATE INDEX</span> idx_places_mood_tags
+  <span class="kw">ON</span> places <span class="kw">USING</span> GIN(mood_tags);
+
+<span class="comment">-- Open places filter (partial index, ~50% of table)</span>
+<span class="kw">CREATE INDEX</span> idx_places_open_now
+  <span class="kw">ON</span> places(city_id, crave_score <span class="kw">DESC</span>)
+  <span class="kw">WHERE</span> is_open_now = <span class="kw">true</span>;
+    </pre>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ 04 RECOMMENDATION ENGINE -->
+<div class="chapter">
+  <div class="chapter-num">04</div>
+  <div class="chapter-label">Section 04</div>
+  <div class="chapter-title">Recommendation Engine</div>
+  <div class="chapter-desc">Hybrid scoring architecture combining embedding similarity, collaborative filtering, geo signals, and real-time trending to produce the optimal ranked experience list.</div>
+</div>
+<div class="content">
+
+  <h2>Hybrid Scoring Architecture</h2>
+  <p>The engine is a <strong>two-stage retrieve-and-rank pipeline</strong>. Stage 1 retrieves a broad candidate set using fast geo + embedding search. Stage 2 applies a weighted multi-signal scoring function to produce the final ranked list.</p>
+
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-step-num">STAGE 1</div>
+      <div class="flow-step-name">Candidate Retrieval</div>
+      <div class="flow-step-sub">Geo filter + ANN search → 200 candidates</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-step-num">STAGE 2</div>
+      <div class="flow-step-name">Multi-Signal Scoring</div>
+      <div class="flow-step-sub">7-factor weighted score per candidate</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-step-num">STAGE 3</div>
+      <div class="flow-step-name">Diversity Reranking</div>
+      <div class="flow-step-sub">MMR to prevent category collapse</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-step-num">OUTPUT</div>
+      <div class="flow-step-name">Top 10–20</div>
+      <div class="flow-step-sub">Served to client</div>
+    </div>
+  </div>
+
+  <h2>Scoring Function</h2>
+  <div class="code-block">
+    <div class="code-label">TypeScript — Composite Score Calculation</div>
+    <pre>
+<span class="kw">interface</span> <span class="type">ScoringSignals</span> {
+  moodRelevance:    <span class="type">number</span>;  <span class="comment">// 0–1, cosine similarity mood↔place embedding</span>
+  distance:         <span class="type">number</span>;  <span class="comment">// 0–1, inverse normalized (closer = higher)</span>
+  rating:           <span class="type">number</span>;  <span class="comment">// 0–1, normalized from 0–5 stars</span>
+  popularityScore:  <span class="type">number</span>;  <span class="comment">// 0–1, log-normalized check-in count</span>
+  trendingSignal:   <span class="type">number</span>;  <span class="comment">// 0–1, recent 24h craving velocity</span>
+  personalAffinity: <span class="type">number</span>;  <span class="comment">// 0–1, collaborative filter score (0 for new users)</span>
+  timeRelevance:    <span class="type">number</span>;  <span class="comment">// 0–1, is_open_now × hour-of-day appropriateness</span>
+}
+
+<span class="comment">// Weights tuned via A/B testing. Sum = 1.0</span>
+<span class="kw">const</span> WEIGHTS = {
+  moodRelevance:    <span class="num">0.30</span>,  <span class="comment">// Highest — core product promise</span>
+  distance:         <span class="num">0.20</span>,  <span class="comment">// Critical for real-world utility</span>
+  rating:           <span class="num">0.15</span>,  <span class="comment">// Trust signal</span>
+  popularityScore:  <span class="num">0.10</span>,
+  trendingSignal:   <span class="num">0.10</span>,  <span class="comment">// Real-time city pulse integration</span>
+  personalAffinity: <span class="num">0.10</span>,  <span class="comment">// Grows with user history</span>
+  timeRelevance:    <span class="num">0.05</span>,
+};
+
+<span class="kw">function</span> <span class="key">computeScore</span>(signals: <span class="type">ScoringSignals</span>): <span class="type">number</span> {
+  <span class="kw">return</span> Object.entries(WEIGHTS).reduce((sum, [key, weight]) => {
+    <span class="kw">return</span> sum + (signals[key] * weight);
+  }, <span class="num">0</span>);
+}
+
+<span class="comment">// Promoted listings: inject at positions 1, 4, 7 with score floor 0.5</span>
+<span class="comment">// (never shown if organic score > promoted score)</span>
+    </pre>
+  </div>
+
+  <h2>Embedding Strategy</h2>
+  <p>Every place and every mood are represented in the same 1536-dimensional vector space using OpenAI's <code>text-embedding-ada-002</code>. The embedding input for a place is a structured prompt that captures its identity:</p>
+  <div class="code-block">
+    <div class="code-label">Place Embedding Prompt Template</div>
+    <pre>
+<span class="comment">// Input to embedding model for each place</span>
+<span class="kw">const</span> buildPlaceEmbeddingText = (place: <span class="type">Place</span>): <span class="type">string</span> => `
+  Name: ${place.name}
+  Categories: ${place.categories.join(', ')}
+  Mood tags: ${place.mood_tags.join(', ')}
+  Price level: ${place.price_level}/4
+  Description: ${place.description}
+  Typical visit: ${place.typical_visit_context}
+  Hours context: ${place.hours_description}
+`;
+
+<span class="comment">// Mood embedding uses the processed MoodIntent, not raw text</span>
+<span class="kw">const</span> buildMoodEmbeddingText = (intent: <span class="type">MoodIntent</span>): <span class="type">string</span> => `
+  Mood: ${intent.primary_mood}
+  Categories seeking: ${intent.categories.join(', ')}
+  Atmosphere: ${intent.atmosphere}
+  Budget: ${intent.budget_label}
+  Group size: ${intent.group_size}
+  Time context: ${intent.time_context}
+`;
+    </pre>
+  </div>
+
+  <h2>Cold Start Handling</h2>
+  <div class="card-grid">
+    <div class="card card-accent">
+      <div class="card-title">New User (0 cravings)</div>
+      <p>personalAffinity = 0. Fall back to city-level trending + high-rating places. Onboarding questionnaire captures 3 preference signals to bootstrap collaborative filter.</p>
+    </div>
+    <div class="card card-teal">
+      <div class="card-title">New Place (0 cravings)</div>
+      <p>popularityScore uses global prior = 0.5. Embedding still works immediately. Boosted 20% for first 30 days to seed initial discovery and gather signal.</p>
+    </div>
+    <div class="card card-pink">
+      <div class="card-title">New City (sparse data)</div>
+      <p>Fall back to Google Places + Yelp ratings. City Pulse aggregation disabled until 500+ daily cravings. Cross-city collaborative signals used as proxy.</p>
+    </div>
+  </div>
+
+  <h2>Diversity Reranking (MMR)</h2>
+  <div class="code-block">
+    <div class="code-label">Maximal Marginal Relevance — Prevents Category Collapse</div>
+    <pre>
+<span class="comment">// After scoring, apply MMR to ensure result diversity</span>
+<span class="comment">// Prevents showing 10 Italian restaurants when user said "date night"</span>
+<span class="kw">function</span> <span class="key">mmrRerank</span>(
+  candidates: <span class="type">ScoredPlace</span>[],
+  lambda: <span class="type">number</span> = <span class="num">0.7</span>,  <span class="comment">// 0=max diversity, 1=max relevance</span>
+  topK: <span class="type">number</span> = <span class="num">20</span>
+): <span class="type">ScoredPlace</span>[] {
+  <span class="kw">const</span> selected: <span class="type">ScoredPlace</span>[] = [];
+  <span class="kw">const</span> remaining = [...candidates];
+
+  <span class="kw">while</span> (selected.length &lt; topK && remaining.length > <span class="num">0</span>) {
+    <span class="kw">const</span> best = remaining.reduce((best, candidate) => {
+      <span class="kw">const</span> relevance = candidate.score;
+      <span class="kw">const</span> maxSimilarity = selected.length
+        ? Math.max(...selected.map(s => categorySimilarity(s, candidate)))
+        : <span class="num">0</span>;
+      <span class="kw">const</span> mmrScore = lambda * relevance - (<span class="num">1</span> - lambda) * maxSimilarity;
+      <span class="kw">return</span> mmrScore > best.mmrScore ? { candidate, mmrScore } : best;
+    }, { candidate: remaining[<span class="num">0</span>], mmrScore: -Infinity });
+
+    selected.push(best.candidate);
+    remaining.splice(remaining.indexOf(best.candidate), <span class="num">1</span>);
+  }
+  <span class="kw">return</span> selected;
+}
+    </pre>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ 05 AI MOOD PIPELINE -->
+<div class="chapter">
+  <div class="chapter-num">05</div>
+  <div class="chapter-label">Section 05</div>
+  <div class="chapter-title">AI Mood Interpretation Pipeline</div>
+  <div class="chapter-desc">NLP pipeline, intent classification, mood taxonomy design, and context enrichment that converts raw emotional input into structured, actionable intent.</div>
+</div>
+<div class="content">
+
+  <h2>Pipeline Stages</h2>
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-step-num">01</div>
+      <div class="flow-step-name">Input Normalization</div>
+      <div class="flow-step-sub">Clean, language detect</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-step-num">02</div>
+      <div class="flow-step-name">Context Injection</div>
+      <div class="flow-step-sub">Time, location, history</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-step-num">03</div>
+      <div class="flow-step-name">LLM Extraction</div>
+      <div class="flow-step-sub">Structured intent JSON</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-step-num">04</div>
+      <div class="flow-step-name">Taxonomy Mapping</div>
+      <div class="flow-step-sub">Mood → categories</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="flow-step-num">05</div>
+      <div class="flow-step-name">Embedding</div>
+      <div class="flow-step-sub">Vector for similarity</div>
+    </div>
+  </div>
+
+  <h2>MoodIntent Schema Output</h2>
+  <div class="code-block">
+    <div class="code-label">Python — LLM System Prompt + Output Schema</div>
+    <pre>
+SYSTEM_PROMPT = <span class="str">"""
+You are CasualCrave's mood interpreter. Extract structured intent from 
+a user's mood expression. Consider their location context and time of day.
+
+Return ONLY valid JSON matching this schema. No explanation.
+
+{
+  "primary_mood": string,           // "bored", "romantic", "adventurous", etc.
+  "secondary_moods": string[],      // up to 2 supporting moods
+  "categories": string[],           // from: food, drinks, nightlife, activity, 
+                                    //       cafe, event, outdoors, entertainment
+  "atmosphere": string,             // "lively" | "chill" | "romantic" | "social" | "solo"
+  "budget_level": number,           // 1–4
+  "group_size": string,             // "solo" | "couple" | "small_group" | "large_group"
+  "urgency": string,                // "now" | "tonight" | "this_week"
+  "time_context": string,           // "late_night" | "dinner" | "afternoon" | "morning"
+  "special_signals": string[],      // ["cheap", "hidden_gem", "trendy", "kid_friendly"]
+  "confidence": number              // 0–1, how certain the interpretation is
+}
+"""</span>
+
+<span class="comment"># Context injected per request</span>
+user_context = <span class="str">f"""
+User mood: "{raw_input}"
+Current time: {datetime.now(user_tz).strftime('%A %I:%M %p')}
+City: {user.city}
+Recent cravings: {json.dumps(last_3_cravings)}
+"""</span>
+
+<span class="comment"># Fallback: if confidence &lt; 0.5, ask one clarifying question</span>
+<span class="comment"># "Are you looking for food, drinks, or an activity?"</span>
+    </pre>
+  </div>
+
+  <h2>Mood Taxonomy (L1/L2 Hierarchy)</h2>
+  <div class="card-grid">
+    <div class="card card-accent">
+      <div class="card-title">Energy States</div>
+      <p>bored, restless, energetic, adventurous, spontaneous → maps to: nightlife, activities, events, outdoor</p>
+    </div>
+    <div class="card card-pink">
+      <div class="card-title">Social Context</div>
+      <p>date night, friends hangout, solo time, family outing, group celebration → drives group_size, atmosphere</p>
+    </div>
+    <div class="card card-teal">
+      <div class="card-title">Appetite States</div>
+      <p>hungry, craving [specific food], thirsty, brunch mood, late-night bites → food, drinks, cafe</p>
+    </div>
+    <div class="card card-yellow">
+      <div class="card-title">Vibe States</div>
+      <p>chill, cozy, romantic, hype, aesthetic, lowkey → atmosphere signal, filters out mismatched venues</p>
+    </div>
+    <div class="card card-accent">
+      <div class="card-title">Constraint States</div>
+      <p>broke, cheap, budget-friendly, near me, quick, close → budget_level, distance weighting</p>
+    </div>
+    <div class="card card-teal">
+      <div class="card-title">Discovery States</div>
+      <p>something new, hidden gem, trending, what's hot tonight → trendingSignal boost, exploration mode</p>
+    </div>
+  </div>
+
+  <h2>Latency Optimization</h2>
+  <div class="callout callout-teal">
+    <strong>Target: p95 &lt; 500ms end-to-end for mood interpretation + top recommendations</strong>
+    <p>LLM calls are the bottleneck. Mitigation: (1) Cache identical/near-identical inputs using input embedding similarity — if cosine distance to cached key &lt; 0.05, return cached MoodIntent. (2) Pre-compute embeddings for the 50 most common mood templates. (3) Stream the recommendation response while LLM is still resolving for perceived speed.</p>
+  </div>
+  <div class="code-block">
+    <div class="code-label">Python — Semantic Cache Layer</div>
+    <pre>
+<span class="kw">async def</span> <span class="key">interpret_mood_with_cache</span>(raw_input: <span class="type">str</span>, context: <span class="type">dict</span>) -> <span class="type">MoodIntent</span>:
+  input_embedding = <span class="kw">await</span> get_embedding(raw_input)
+
+  <span class="comment"># Check Redis semantic cache (recent 1000 embeddings per city, TTL 15min)</span>
+  cached = <span class="kw">await</span> semantic_cache.find_nearest(
+    embedding=input_embedding,
+    threshold=<span class="num">0.05</span>,    <span class="comment"># cosine distance</span>
+    city_id=context[<span class="str">'city_id'</span>],
+    time_bucket=get_hour_bucket()  <span class="comment"># same hour only</span>
+  )
+
+  <span class="kw">if</span> cached:
+    metrics.increment(<span class="str">'mood_cache.hit'</span>)
+    <span class="kw">return</span> cached.intent
+
+  <span class="comment"># Cache miss → call LLM</span>
+  intent = <span class="kw">await</span> call_openai(raw_input, context)
+  <span class="kw">await</span> semantic_cache.store(input_embedding, intent, context[<span class="str">'city_id'</span>])
+  <span class="kw">return</span> intent
+    </pre>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ 06 API DESIGN -->
+<div class="chapter">
+  <div class="chapter-num">06</div>
+  <div class="chapter-label">Section 06</div>
+  <div class="chapter-title">API Design</div>
+  <div class="chapter-desc">REST API contracts with versioning strategy, authentication model, and request/response schemas for all core platform operations.</div>
+</div>
+<div class="content">
+
+  <h2>Authentication Model</h2>
+  <div class="callout">
+    <strong>JWT + Refresh Token pattern.</strong>
+    <p>Access tokens expire in 15 minutes. Refresh tokens in 30 days, stored httpOnly on web, SecureStorage on mobile. All endpoints requiring auth use <code>Authorization: Bearer &lt;token&gt;</code>. Rate limiting applied per user_id at API Gateway level: 60 req/min for standard, 200 for business accounts.</p>
+  </div>
+
+  <h2>Core Endpoints</h2>
+
+  <h3>Mood & Recommendations</h3>
+  <div class="endpoint">
+    <div class="method post">POST</div>
+    <div>
+      <div class="endpoint-path">/api/v1/mood</div>
+      <div class="endpoint-desc">Submit mood. Returns MoodIntent + top experiences. Core product endpoint. Target p95 &lt; 800ms. Body: {input: string, location: {lat, lng}, options?: {limit, budget_override}}</div>
+    </div>
+  </div>
+  <div class="endpoint">
+    <div class="method get">GET</div>
+    <div>
+      <div class="endpoint-path">/api/v1/mood/history</div>
+      <div class="endpoint-desc">Paginated craving history for authenticated user. Query: ?page=1&limit=20&from=timestamp</div>
+    </div>
+  </div>
+  <div class="endpoint">
+    <div class="method post">POST</div>
+    <div>
+      <div class="endpoint-path">/api/v1/recommendations</div>
+      <div class="endpoint-desc">Direct recommendation query bypassing mood interpretation. For quick-mood buttons. Body: {mood_intent: MoodIntent, location: {lat, lng}, limit?: number}</div>
+    </div>
+  </div>
+
+  <h3>Plan Builder</h3>
+  <div class="endpoint">
+    <div class="method post">POST</div>
+    <div>
+      <div class="endpoint-path">/api/v1/plans/generate</div>
+      <div class="endpoint-desc">Generate multi-stop itinerary from mood. Body: {craving_id: uuid, stops?: number, duration_hours?: number}. Returns Itinerary object.</div>
+    </div>
+  </div>
+  <div class="endpoint">
+    <div class="method get">GET</div>
+    <div>
+      <div class="endpoint-path">/api/v1/plans/:id</div>
+      <div class="endpoint-desc">Get itinerary by ID. Public if is_shared=true (no auth required via share_token).</div>
+    </div>
+  </div>
+  <div class="endpoint">
+    <div class="method post">POST</div>
+    <div>
+      <div class="endpoint-path">/api/v1/plans/:id/share</div>
+      <div class="endpoint-desc">Generate shareable link. Returns {share_url, share_token, og_image_url}.</div>
+    </div>
+  </div>
+
+  <h3>Places</h3>
+  <div class="endpoint">
+    <div class="method get">GET</div>
+    <div>
+      <div class="endpoint-path">/api/v1/places/search</div>
+      <div class="endpoint-desc">Text + geo search. Query: ?q=string&lat=&lng=&radius_m=&categories=&price_level=&open_now=true&limit=20</div>
+    </div>
+  </div>
+  <div class="endpoint">
+    <div class="method get">GET</div>
+    <div>
+      <div class="endpoint-path">/api/v1/places/:id</div>
+      <div class="endpoint-desc">Full place detail including hours, photos, reviews, craving_count, trending_rank.</div>
+    </div>
+  </div>
+  <div class="endpoint">
+    <div class="method post">POST</div>
+    <div>
+      <div class="endpoint-path">/api/v1/places/:id/checkin</div>
+      <div class="endpoint-desc">Check in to a place. Links to craving_id if exists. Triggers crave_score update + Kafka event.</div>
+    </div>
+  </div>
+
+  <h3>Feed & Social</h3>
+  <div class="endpoint">
+    <div class="method get">GET</div>
+    <div>
+      <div class="endpoint-path">/api/v1/feed</div>
+      <div class="endpoint-desc">Personalized Craving Feed. Returns paginated FeedItem[]. Query: ?cursor=&limit=20. FeedItem = {user, craving, place, timestamp, reaction_count}.</div>
+    </div>
+  </div>
+  <div class="endpoint">
+    <div class="method get">GET</div>
+    <div>
+      <div class="endpoint-path">/api/v1/city-pulse/:city_id</div>
+      <div class="endpoint-desc">Real-time city trend data. Returns {top_moods[], top_places[], craving_count_24h, trending_up[], trending_down[]}.</div>
+    </div>
+  </div>
+  <div class="endpoint">
+    <div class="method post">POST</div>
+    <div>
+      <div class="endpoint-path">/api/v1/users/:id/follow</div>
+      <div class="endpoint-desc">Follow/unfollow a user. Toggles. Triggers feed fanout subscription change.</div>
+    </div>
+  </div>
+
+  <h3>Business / Merchant</h3>
+  <div class="endpoint">
+    <div class="method get">GET</div>
+    <div>
+      <div class="endpoint-path">/api/v1/business/analytics</div>
+      <div class="endpoint-desc">Merchant dashboard data. Returns craving_impressions, click_through, conversions, review_summary, trending_position for owned places. Auth: business account only.</div>
+    </div>
+  </div>
+  <div class="endpoint">
+    <div class="method post">POST</div>
+    <div>
+      <div class="endpoint-path">/api/v1/business/promote</div>
+      <div class="endpoint-desc">Create/update promoted listing campaign. Body: {place_id, target_moods[], budget_daily, bid_cpm, start_date, end_date}.</div>
+    </div>
+  </div>
+
+  <h2>Response Envelope</h2>
+  <div class="code-block">
+    <div class="code-label">Standard Response Shape</div>
+    <pre>
+<span class="comment">// Success</span>
+{
+  <span class="key">"success"</span>: <span class="kw">true</span>,
+  <span class="key">"data"</span>: { ... },
+  <span class="key">"meta"</span>: {
+    <span class="key">"request_id"</span>: <span class="str">"req_abc123"</span>,
+    <span class="key">"latency_ms"</span>: <span class="num">234</span>,
+    <span class="key">"cursor"</span>: <span class="str">"eyJsYXN0SWQiOi..."</span>  <span class="comment">// pagination cursor if applicable</span>
+  }
+}
+
+<span class="comment">// Error</span>
+{
+  <span class="key">"success"</span>: <span class="kw">false</span>,
+  <span class="key">"error"</span>: {
+    <span class="key">"code"</span>: <span class="str">"MOOD_INTERPRETATION_FAILED"</span>,
+    <span class="key">"message"</span>: <span class="str">"Could not interpret mood input"</span>,
+    <span class="key">"clarification_question"</span>: <span class="str">"Are you looking for food, drinks, or an activity?"</span>
+  }
+}
+    </pre>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ 07 INFRASTRUCTURE -->
+<div class="chapter">
+  <div class="chapter-num">07</div>
+  <div class="chapter-label">Section 07</div>
+  <div class="chapter-title">Infrastructure & Scaling</div>
+  <div class="chapter-desc">AWS-native deployment, caching layers, geo-distributed architecture, and cost-efficient scaling strategy from 0 to 10M+ users.</div>
+</div>
+<div class="content">
+
+  <h2>AWS Architecture (Production)</h2>
+  <div class="card-grid">
+    <div class="card card-accent">
+      <div class="card-title">Compute</div>
+      <p>ECS Fargate for all NestJS services. Auto-scaling on CPU + request latency. No EC2 management. AI service on ECS with higher CPU allocation (4 vCPU / 8GB).</p>
+    </div>
+    <div class="card card-accent">
+      <div class="card-title">Database</div>
+      <p>RDS Aurora PostgreSQL (Multi-AZ). pgvector extension for embeddings. Read replicas in each active region. Global write, local reads.</p>
+    </div>
+    <div class="card card-accent">
+      <div class="card-title">Cache</div>
+      <p>ElastiCache Redis Cluster (6 nodes). Feed fanout, recommendation cache (5min TTL), session store, distributed rate limiting.</p>
+    </div>
+    <div class="card card-teal">
+      <div class="card-title">CDN</div>
+      <p>CloudFront for all static assets + place photos. Edge caching for /city-pulse and /places/search with location-aware cache keys. 30s TTL on trend data.</p>
+    </div>
+    <div class="card card-teal">
+      <div class="card-title">Event Bus</div>
+      <p>Amazon MSK (Managed Kafka). Topics: craving.created, checkin.completed, plan.shared, review.posted. 7-day retention.</p>
+    </div>
+    <div class="card card-teal">
+      <div class="card-title">Search</div>
+      <p>Amazon OpenSearch for full-text place search. Synced from Postgres via Debezium CDC pipeline. Geo-filtered queries &lt;50ms p95.</p>
+    </div>
+    <div class="card card-pink">
+      <div class="card-title">Storage</div>
+      <p>S3 for photos, user avatars, plan OG images. CloudFront in front. Lifecycle: compress originals to WebP, generate 3 sizes on upload via Lambda.</p>
+    </div>
+    <div class="card card-pink">
+      <div class="card-title">Analytics</div>
+      <p>ClickHouse Cloud for City Pulse aggregation. Kafka→ClickHouse ingest via Kafka table engine. Sub-second aggregation queries over billions of events.</p>
+    </div>
+    <div class="card card-yellow">
+      <div class="card-title">Monitoring</div>
+      <p>DataDog APM on all services. Custom dashboards: recommendation quality (CTR, conversion), mood cache hit rate, p95 latency per endpoint.</p>
+    </div>
+  </div>
+
+  <h2>Caching Strategy (3 Layers)</h2>
+  <div class="code-block">
+    <div class="code-label">Cache Hierarchy</div>
+    <pre>
+<span class="comment">// L1: In-memory LRU per service instance (node-cache / ttl-cache)</span>
+<span class="comment">// Fast, no network hop. 500 items max, TTL 30s</span>
+<span class="comment">// Use for: mood taxonomy lookup, city metadata, feature flags</span>
+
+<span class="comment">// L2: Redis Cluster (ElastiCache)</span>
+<span class="comment">// All services share. Sub-millisecond. TTL varies by data type:</span>
+{
+  <span class="key">"recommendation:{geo_hash_6}:{mood_category}"</span>: <span class="str">"TTL 5min"</span>,  <span class="comment">// ~10km² buckets</span>
+  <span class="key">"city_pulse:{city_id}:{hour_bucket}"</span>:          <span class="str">"TTL 15min"</span>,
+  <span class="key">"place:{place_id}"</span>:                             <span class="str">"TTL 30min"</span>,
+  <span class="key">"feed:{user_id}"</span>:                               <span class="str">"TTL 2min"</span>,   <span class="comment">// stale while revalidate</span>
+  <span class="key">"session:{user_id}"</span>:                            <span class="str">"TTL 30days"</span>
+}
+
+<span class="comment">// L3: CloudFront edge cache</span>
+<span class="comment">// Geographic distribution. Use for: city-pulse API (public), place photos,</span>
+<span class="comment">// shared plan pages (OG images for social sharing)</span>
+<span class="comment">// Cache key includes city + hour for trend pages</span>
+    </pre>
+  </div>
+
+  <h2>Geo Query Strategy</h2>
+  <div class="code-block">
+    <div class="code-label">PostGIS — Efficient Geo Search</div>
+    <pre>
+<span class="comment">-- Stage 1: Bounding box filter (FAST, uses index)</span>
+<span class="comment">-- Then exact distance filter. Then embedding ANN. Never reverse.</span>
+
+<span class="kw">SELECT</span> p.id, p.name, p.crave_score, p.embedding,
+  ST_Distance(p.location::geography, ST_MakePoint(<span class="num">7.4898</span>, <span class="num">9.0820</span>)::geography) <span class="kw">AS</span> dist_m
+<span class="kw">FROM</span> places p
+<span class="kw">WHERE</span>
+  p.city_id = <span class="str">'$city_id'</span>
+  <span class="kw">AND</span> p.is_open_now = <span class="kw">true</span>
+  <span class="kw">AND</span> p.mood_tags &amp;&amp; <span class="kw">ARRAY</span>[<span class="str">'romantic'</span>, <span class="str">'dinner'</span>]       <span class="comment">-- GIN index</span>
+  <span class="kw">AND</span> ST_DWithin(                                         <span class="comment">-- GIST index hit</span>
+    p.location::geography,
+    ST_MakePoint(<span class="num">7.4898</span>, <span class="num">9.0820</span>)::geography,
+    <span class="num">5000</span>                                                   <span class="comment">-- 5km radius</span>
+  )
+<span class="kw">ORDER BY</span> p.crave_score <span class="kw">DESC</span>
+<span class="kw">LIMIT</span> <span class="num">200</span>;                                               <span class="comment">-- Stage 1 candidates</span>
+
+<span class="comment">-- Stage 2: Vector similarity applied IN APPLICATION LAYER</span>
+<span class="comment">-- (cheaper to filter 200 candidates in app than do ANN on all 50k city places)</span>
+    </pre>
+  </div>
+
+  <h2>Scaling Milestones</h2>
+  <div class="metrics">
+    <div class="metric"><div class="metric-val">0–10K</div><div class="metric-label">Users · MVP Monolith on ECS</div></div>
+    <div class="metric"><div class="metric-val">10–100K</div><div class="metric-label">Users · Service Split + Redis</div></div>
+    <div class="metric"><div class="metric-val">100K–1M</div><div class="metric-label">Users · Multi-region + CDN</div></div>
+    <div class="metric"><div class="metric-val">1M+</div><div class="metric-label">Users · Global sharding + Pinecone</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ 08 MVP ROADMAP -->
+<div class="chapter">
+  <div class="chapter-num">08</div>
+  <div class="chapter-label">Section 08</div>
+  <div class="chapter-title">MVP Development Roadmap</div>
+  <div class="chapter-desc">Phased delivery plan prioritized by value delivery, user acquisition, and revenue readiness.</div>
+</div>
+<div class="content">
+
+  <h2>Phase 0 — Foundation (Weeks 1–4)</h2>
+  <div class="roadmap-lane">
+    <div class="roadmap-phase">Phase 0<br/>Foundation</div>
+    <div class="roadmap-items">
+      <div class="item">NestJS project setup + Docker</div>
+      <div class="item">Auth service (phone OTP + JWT)</div>
+      <div class="item">PostgreSQL + PostGIS setup</div>
+      <div class="item">Places data ingestion (Google Places API)</div>
+      <div class="item">Basic mood input → OpenAI → categories</div>
+      <div class="item">Geo search endpoint</div>
+      <div class="item">Next.js shell + Mapbox map</div>
+      <div class="item">CI/CD pipeline (GitHub Actions → ECS)</div>
+    </div>
+  </div>
+
+  <h2>Phase 1 — Core Product (Weeks 5–10)</h2>
+  <div class="roadmap-lane">
+    <div class="roadmap-phase p2">Phase 1<br/>Core MVP</div>
+    <div class="roadmap-items">
+      <div class="item">Full mood interpretation pipeline</div>
+      <div class="item">Recommendation engine v1 (5-factor scoring)</div>
+      <div class="item">Recommendation results UI</div>
+      <div class="item">Place detail pages</div>
+      <div class="item">Plan Builder v1 (3-stop itineraries)</div>
+      <div class="item">User profiles + craving history</div>
+      <div class="item">React Native app (iOS + Android)</div>
+      <div class="item">Redis caching layer</div>
+    </div>
+  </div>
+
+  <h2>Phase 2 — Social Layer (Weeks 11–16)</h2>
+  <div class="roadmap-lane">
+    <div class="roadmap-phase p3">Phase 2<br/>Social + Growth</div>
+    <div class="roadmap-items">
+      <div class="item">Craving Feed (follow graph)</div>
+      <div class="item">City Pulse v1</div>
+      <div class="item">Shareable plans (OG images)</div>
+      <div class="item">Check-ins + reviews</div>
+      <div class="item">Notifications (push)</div>
+      <div class="item">Onboarding flow</div>
+      <div class="item">Analytics dashboard (ClickHouse)</div>
+      <div class="item">A/B testing infrastructure</div>
+    </div>
+  </div>
+
+  <h2>Phase 3 — Monetization (Weeks 17–24)</h2>
+  <div class="roadmap-lane">
+    <div class="roadmap-phase p2">Phase 3<br/>Revenue</div>
+    <div class="roadmap-items">
+      <div class="item">Business account system</div>
+      <div class="item">Promoted listings engine</div>
+      <div class="item">Merchant analytics dashboard</div>
+      <div class="item">Booking/reservation integration (Calendly/custom)</div>
+      <div class="item">Group Deals feature</div>
+      <div class="item">Recommendation engine v2 (embeddings + personalization)</div>
+      <div class="item">Multi-city expansion tooling</div>
+    </div>
+  </div>
+
+  <h2>Launch City Strategy</h2>
+  <div class="callout callout-teal">
+    <strong>Launch in 1 city, dominate it before expanding.</strong>
+    <p>Abuja as launch city. Target density: 500+ places, 5,000+ users within 90 days. City Pulse only unlocks at 500 daily cravings — use this as the "city is alive" threshold that justifies expansion to Lagos, then Nairobi, then London/Toronto diaspora markets. Playbook documented and repeatable per city.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ 09 GROWTH STRATEGY -->
+<div class="chapter">
+  <div class="chapter-num">09</div>
+  <div class="chapter-label">Section 09</div>
+  <div class="chapter-title">Growth Strategy</div>
+  <div class="chapter-desc">Viral loops, social mechanics, and acquisition channels engineered into the core product experience.</div>
+</div>
+<div class="content">
+
+  <h2>Core Viral Loops</h2>
+  <div class="card-grid-2">
+    <div class="card card-accent">
+      <div class="card-title">Loop 1 — Plan Share</div>
+      <p>User generates a plan → shares on WhatsApp/X/Instagram Story → recipient sees a beautifully designed plan page → downloads app to create their own. One of the highest-converting cold acquisition loops because the shared content is genuinely useful, not just promotional.</p>
+    </div>
+    <div class="card card-teal">
+      <div class="card-title">Loop 2 — Craving Feed</div>
+      <p>User follows friends → sees their cravings → gets inspired → creates their own craving → appears in followers' feeds. Classic social graph growth loop. Identical to how Twitter/Strava drives habitual use through social proof and FOMO signals.</p>
+    </div>
+    <div class="card card-pink">
+      <div class="card-title">Loop 3 — Business Referral</div>
+      <p>Venue gets tagged in cravings + check-ins → venue owner sees organic traffic → signs up for merchant account → promotes listing → more visibility → more user cravings → more venue sign-ups. B2B2C flywheel that funds user growth.</p>
+    </div>
+    <div class="card card-yellow">
+      <div class="card-title">Loop 4 — City Pulse</div>
+      <p>City Pulse is publicly accessible (no login) and embeddable. Media outlets, blogs, and influencers share "What Abuja is craving tonight." Each share drives brand awareness and app installs from people who want to influence or join the pulse.</p>
+    </div>
+  </div>
+
+  <h2>Acquisition Channels by Phase</h2>
+  <table class="schema-table">
+    <tr><th>Phase</th><th>Channel</th><th>Tactic</th><th>Target CAC</th></tr>
+    <tr><td>Launch</td><td>Community seeding</td><td>Partner with 20 Abuja food/lifestyle influencers. Give early access + exclusive City Pulse credit.</td><td>$0</td></tr>
+    <tr><td>Launch</td><td>WhatsApp virality</td><td>Make plan sharing frictionless for WhatsApp. Every shared plan includes "Made with CasualCrave" + app link.</td><td>$0</td></tr>
+    <tr><td>Growth</td><td>Venue partnerships</td><td>Onboard 100 venues as launch partners. They promote to their Instagram audience in exchange for premium placement.</td><td>&lt;$2</td></tr>
+    <tr><td>Growth</td><td>Content SEO</td><td>"Best date night spots in Abuja", "What to do in Lagos on a Saturday" — long-tail pages powered by real craving data.</td><td>&lt;$1</td></tr>
+    <tr><td>Scale</td><td>Paid social</td><td>Only turn on paid after organic NPS &gt; 50 and retention D30 &gt; 25%. Facebook/Meta for Lagos, TikTok for Gen Z.</td><td>&lt;$5</td></tr>
+  </table>
+
+  <h2>Retention Mechanics</h2>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-title">Weekly City Pulse Digest</div>
+      <p>Push notification every Friday: "Here's what Abuja is craving this weekend." Personalized based on user's top categories. High open rate because it's genuinely timely.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Craving Streak</div>
+      <p>Gamified streak for consecutive weeks with a craving. Small but effective — Duolingo proved the mechanic at scale. Shown on profile as social signal.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Plan History</div>
+      <p>"1 year ago you craved..." memory feature. Emotional hook. Drives re-engagement from dormant users and encourages re-visiting favourite spots.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ 10 MONETIZATION -->
+<div class="chapter">
+  <div class="chapter-num">10</div>
+  <div class="chapter-label">Section 10</div>
+  <div class="chapter-title">Monetization Model</div>
+  <div class="chapter-desc">Multi-layered revenue architecture designed to align platform incentives with user value and scale to $10M+ ARR.</div>
+</div>
+<div class="content">
+
+  <h2>Revenue Streams</h2>
+  <div class="card-grid">
+    <div class="card card-accent">
+      <div class="card-title">Promoted Listings</div>
+      <p>Venues bid to appear in recommendation results for specific moods. CPM-based auction. Mood-targeted ads are 3–5× more relevant than location-only targeting — premium CPM justified. Target: ₦5,000–50,000/day per listing.</p>
+    </div>
+    <div class="card card-teal">
+      <div class="card-title">CravePass (Subscriptions)</div>
+      <p>Monthly subscription unlocking: early access to trending spots, premium plan features (5-stop itineraries), exclusive group deals, ad-free experience. Price: ~$3–5/month. Target 5% conversion of active users.</p>
+    </div>
+    <div class="card card-pink">
+      <div class="card-title">Booking Commissions</div>
+      <p>10–15% commission on reservations, tickets, and group deals booked through platform. Requires venue integration API. High value per transaction — one group dinner = $20–50 commission. Phase 3 revenue.</p>
+    </div>
+    <div class="card card-yellow">
+      <div class="card-title">City Intelligence</div>
+      <p>B2B SaaS: sell aggregated craving trend data to city councils, tourism boards, real estate developers, and retail chains deciding where to open next location. Monthly data subscription. $500–5,000/month per client.</p>
+    </div>
+    <div class="card card-accent">
+      <div class="card-title">Group Deals</div>
+      <p>Venues offer exclusive deals to groups of 4+ users. CasualCrave takes 10–20% margin. Drives group use cases — the highest LTV user segment. Venue wins with guaranteed table fills, platform wins on margin.</p>
+    </div>
+    <div class="card card-teal">
+      <div class="card-title">Gifting</div>
+      <p>Send a "Crave Gift" — a curated experience recommendation sent to a friend with a message. Venue earns the sale, platform earns a fee. Gift cards + gifted itineraries. Holiday/birthday use case.</p>
+    </div>
+  </div>
+
+  <h2>Unit Economics Model</h2>
+  <table class="schema-table">
+    <tr><th>Metric</th><th>MVP Target (6 months)</th><th>Scale Target (18 months)</th></tr>
+    <tr><td>MAU</td><td>5,000</td><td>200,000</td></tr>
+    <tr><td>Paying Venues (Promoted)</td><td>50</td><td>2,000</td></tr>
+    <tr><td>Avg. Venue Revenue/Month</td><td>₦30,000 (~$20)</td><td>₦150,000 (~$100)</td></tr>
+    <tr><td>CravePass Subscribers</td><td>0</td><td>5,000 (@$4/month)</td></tr>
+    <tr><td>Monthly Revenue</td><td>~$1,000</td><td>~$220,000</td></tr>
+    <tr><td>Gross Margin</td><td>60%</td><td>75%+</td></tr>
+    <tr><td>LTV (avg user)</td><td>$8</td><td>$45</td></tr>
+    <tr><td>CAC (blended)</td><td>&lt;$3</td><td>&lt;$8</td></tr>
+  </table>
+
+  <div class="callout callout-pink">
+    <strong>Strategic Note on African Market Pricing</strong>
+    <p>Price in local currency (NGN, KES, GHS) and keep friction near zero. The willingness to pay exists — users spend $50+ on a night out but baulk at $1/month subscriptions if the payment flow is broken. Integrate Paystack and Flutterwave from day one. USSD fallback for low-connectivity markets. The infrastructure investment in African payment rails is itself a competitive moat vs. global platforms that treat it as an afterthought.</p>
+  </div>
+
+  <div style="margin-top:60px; padding-top:40px; border-top:1px solid #222; display:flex; justify-content:space-between; align-items:center;">
+    <div>
+      <div style="font-family:'Bebas Neue',sans-serif; font-size:28px; color:var(--orange);">CasualCrave</div>
+      <div style="font-size:12px; color:var(--gray); letter-spacing:2px;">casual-crave.com</div>
+    </div>
+    <div style="font-size:11px; color:var(--gray); letter-spacing:2px; text-align:right;">
+      System Architecture & Product Blueprint<br/>
+      Confidential — Internal Document
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
